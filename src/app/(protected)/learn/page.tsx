@@ -15,6 +15,10 @@ const DETAIL: Record<string, { blurb: string; tags: string[] }> = {
     blurb: "Making calls, prowords, the phonetic alphabet and reporting incidents with the 4 Ps.",
     tags: ["Prowords", "Phonetic", "4 Ps"],
   },
+  waves: {
+    blurb: "The three types of breaking wave, the parts of a wave, and what each means for swimmers.",
+    tags: ["Spilling", "Plunging", "Surging"],
+  },
 };
 
 export default function LearnHubPage() {
@@ -27,7 +31,7 @@ export default function LearnHubPage() {
           and Aquatic Rescue Training Manual (35th edition). When you&apos;re ready, test yourself.
         </p>
       </header>
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         {TOPICS.map((t) => (
           <div key={t.id} className="card flex flex-col gap-3 border-2 border-transparent hover:border-secondary transition-all">
             <Link href={t.learnHref} className="space-y-2 flex-1">

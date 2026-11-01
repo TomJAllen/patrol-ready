@@ -1,8 +1,8 @@
-// The three topics the app covers, and the tests for each.
+// The topics the app covers, and the tests for each.
 // Learn, Test and the dashboard all read from here so they stay in step.
 // An exercise without an href is shown as "Coming soon".
 
-export type TopicId = "signals" | "acronyms" | "radio";
+export type TopicId = "signals" | "acronyms" | "radio" | "waves";
 
 export interface Exercise {
   title: string;
@@ -100,6 +100,25 @@ export const TOPICS: Topic[] = [
       {
         title: "Listen and respond",
         description: "Hear an incoming call and choose the right reply.",
+      },
+    ],
+  },
+  {
+    id: "waves",
+    title: "Waves",
+    blurb: "Spilling, plunging and surging waves, and how to read them.",
+    learnHref: "/learn/waves",
+    testHref: "/test/waves",
+    exercises: [
+      {
+        title: "Wave types",
+        description: "Read a situation or look at a drawing and name the type of wave.",
+        href: "/test/waves/types",
+      },
+      {
+        title: "Wave words",
+        description: "Crest, trough, set, lull, backwash: match the word to what it means.",
+        href: "/test/waves/terms",
       },
     ],
   },

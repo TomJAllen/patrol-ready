@@ -26,6 +26,7 @@ const AREA_LABEL: Record<ResultArea, string> = {
   signals: "Signals",
   acronyms: "Acronyms",
   radio: "Radio",
+  waves: "Waves",
 };
 
 const AREA_STYLE: Record<ResultArea, string> = {
@@ -33,9 +34,10 @@ const AREA_STYLE: Record<ResultArea, string> = {
   signals: "bg-primary text-white",
   acronyms: "bg-sea text-white",
   radio: "bg-ink text-white",
+  waves: "bg-sky-200 text-ink",
 };
 
-const FILTERS: ("all" | ResultArea)[] = ["all", "daily", "signals", "acronyms", "radio"];
+const FILTERS: ("all" | ResultArea)[] = ["all", "daily", "signals", "acronyms", "radio", "waves"];
 
 // Match rounds and built calls are scored on mistakes; everything else on right answers
 const SCORED_ON_MISTAKES = new Set(["mnemonic_match", "radio_build_call"]);

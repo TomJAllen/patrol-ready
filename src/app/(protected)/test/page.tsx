@@ -6,6 +6,7 @@ const FOR: Record<string, string> = {
   signals: "Name them from a picture, then perform them on camera.",
   acronyms: "Quiz each letter, then drag real patient details onto the right one.",
   radio: "Prowords, the phonetic alphabet, spelling call signs and building calls.",
+  waves: "Name the type of wave from a situation or a drawing, and the words for its parts.",
 };
 
 export default function TestHubPage() {
@@ -26,7 +27,7 @@ export default function TestHubPage() {
           Four questions a day, the same for everyone: a signal, an acronym, a radio call and one from the PSAR manual.
         </span>
       </Link>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {TOPICS.map((t) => {
           const ready = t.exercises.filter((e) => e.href).length;
           const soon = t.exercises.length - ready;
