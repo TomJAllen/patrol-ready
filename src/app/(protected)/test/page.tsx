@@ -6,7 +6,7 @@ const FOR: Record<string, string> = {
   signals: "Name them from a picture, then perform them on camera.",
   acronyms: "Quiz each letter, then drag real patient details onto the right one.",
   radio: "Prowords, the phonetic alphabet, spelling call signs and building calls.",
-  waves: "Name the type of wave from a situation or a drawing, and the words for its parts.",
+  "surf-awareness": "Name the wave from a drawing, spot the signs of a rip, and know your wave words."
 };
 
 export default function TestHubPage() {

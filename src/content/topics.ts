@@ -1,8 +1,11 @@
 // The topics the app covers, and the tests for each.
 // Learn, Test and the dashboard all read from here so they stay in step.
 // An exercise without an href is shown as "Coming soon".
+// Topics built from sets (src/content/sets) get one test per set, plus a mixed one.
 
-export type TopicId = "signals" | "acronyms" | "radio" | "waves";
+import { SET_TOPICS, type SetTopicId } from "@/content/sets";
+
+export type TopicId = "signals" | "acronyms" | "radio" | SetTopicId;
 
 export interface Exercise {
   title: string;
@@ -103,25 +106,19 @@ export const TOPICS: Topic[] = [
       },
     ],
   },
-  {
-    id: "waves",
-    title: "Waves",
-    blurb: "Spilling, plunging and surging waves, and how to read them.",
-    learnHref: "/learn/waves",
-    testHref: "/test/waves",
-    exercises: [
-      {
-        title: "Wave types",
-        description: "Read a situation or look at a drawing and name the type of wave.",
-        href: "/test/waves/types",
-      },
-      {
-        title: "Wave words",
-        description: "Crest, trough, set, lull, backwash: match the word to what it means.",
-        href: "/test/waves/terms",
-      },
-    ],
-  },
+  ...SET_TOPICS.map(
+    (t): Topic => ({
+      id: t.id,
+      title: t.title,
+      blurb: t.blurb,
+      learnHref: `/learn/${t.id}`,
+      testHref: `/test/${t.id}`,
+      exercises: [
+        ...t.sets.map((set) => ({ title: set.title, description: set.purpose, href: `/test/${t.id}/${set.slug}` })),
+        { title: `All of ${t.title.toLowerCase()}`, description: "A mix from every set, plus what each one is for.", href: `/test/${t.id}/mixed` },
+      ],
+    })
+  ),
 ];
 
 export function getTopic(id: TopicId): Topic {

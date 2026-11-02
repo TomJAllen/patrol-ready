@@ -1,4 +1,4 @@
-import type { WaveTypeId } from "@/content/waves";
+export type WaveTypeId = "spilling" | "plunging" | "surging";
 
 // Simple line drawings for the Waves page. The shore is always on the right,
 // so waves travel left to right.

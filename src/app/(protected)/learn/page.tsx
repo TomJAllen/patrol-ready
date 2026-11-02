@@ -15,9 +15,9 @@ const DETAIL: Record<string, { blurb: string; tags: string[] }> = {
     blurb: "Making calls, prowords, the phonetic alphabet and reporting incidents with the 4 Ps.",
     tags: ["Prowords", "Phonetic", "4 Ps"],
   },
-  waves: {
-    blurb: "The three types of breaking wave, the parts of a wave, and what each means for swimmers.",
-    tags: ["Spilling", "Plunging", "Surging"],
+  "surf-awareness": {
+    blurb: "Reading the water: how waves break, how to spot a rip, and the words for it all.",
+    tags: ["Types of waves", "Signs of a rip", "Wave words"],
   },
 };
 
