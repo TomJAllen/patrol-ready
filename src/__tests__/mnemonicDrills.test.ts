@@ -82,3 +82,15 @@ describe("fair questions", () => {
     }
   });
 });
+
+import { whichLetter } from "@/components/drills/acronymDrills";
+describe("letter wording", () => {
+  it("says which D when a letter repeats", () => {
+    const d = MNEMONICS.find((m) => m.slug === "drsabcd")!;
+    expect(whichLetter(d, 0)).toBe("the first D");
+    expect(whichLetter(d, 6)).toBe("the second D");
+    expect(whichLetter(d, 1)).toBe("the R");
+    const imist = MNEMONICS.find((m) => m.slug === "imist-ambo")!;
+    expect(whichLetter(imist, 2)).toBe("the second I");
+  });
+});

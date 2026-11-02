@@ -35,7 +35,7 @@ export const TOPICS: Topic[] = SET_TOPICS.map((t) => ({
         href: test.href,
       }))
     ),
-    { title: `All of ${t.title.toLowerCase()}`, description: "A mix from every set, plus what each one is for.", href: `/test/${t.id}/mixed` },
+    { title: `All of ${t.title.toLowerCase()}`, description: "A mix of questions from every set.", href: `/test/${t.id}/mixed` },
   ],
 }));
 
