@@ -125,29 +125,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Three topics, each led by what it does for you */}
+      {/* Three highlights, each led by what it does for you */}
       <section className="border-t-[3px] border-ink bg-white">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-3 md:gap-8 md:px-6 md:py-20">
           {[
             {
-              topic: "Signals",
+              topic: "Hand signals",
               title: "Do them on camera",
               body: "Name all 14 from a picture, then perform each one in front of your camera. It checks your arm positions and movement, and the video never leaves your device.",
-              href: "/test/signals",
+              href: "/test/communication",
               cta: "Test your signals",
             },
             {
-              topic: "Acronyms",
+              topic: "First aid & resus",
               title: "Know what to ask and say",
-              body: "DRSABCD, SAMPLE, IMIST AMBO and nine more. Quiz yourself letter by letter, then drag real patient details onto the right letter.",
-              href: "/test/acronyms",
-              cta: "Test your acronyms",
+              body: "DRSABCD, CPR, SAMPLE, IMIST AMBO and more. Quiz yourself letter by letter, then drag real patient details onto the right letter.",
+              href: "/test/first-aid",
+              cta: "Test your first aid",
             },
             {
               topic: "Radio",
               title: "Sound sure on the radio",
               body: "Prowords, the phonetic alphabet and the 4 Ps. Spell call signs and put real calls to SurfCom in the right order.",
-              href: "/test/radio",
+              href: "/test/communication",
               cta: "Test your radio",
             },
           ].map((f) => (

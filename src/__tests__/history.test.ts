@@ -5,9 +5,10 @@ import { dailyDoneHere, saveDrillResult } from "@/lib/recordDrill";
 describe("describeResult", () => {
   it("names each kind of result", () => {
     expect(describeResult("daily_mix", null)).toEqual({ area: "daily", title: "Daily practice" });
-    expect(describeResult("signals_perform", null)).toEqual({ area: "signals", title: "Perform" });
-    expect(describeResult("mnemonic_match", "sample")).toEqual({ area: "acronyms", title: "SAMPLE: Match" });
-    expect(describeResult("radio_prowords", null)).toEqual({ area: "radio", title: "Prowords" });
+    expect(describeResult("signals_perform", null)).toEqual({ area: "communication", title: "Hand signals: Perform" });
+    expect(describeResult("mnemonic_match", "sample")).toEqual({ area: "first-aid", title: "SAMPLE: Match" });
+    expect(describeResult("mnemonic_quiz", "help")).toEqual({ area: "patrol", title: "HELP: Quiz" });
+    expect(describeResult("radio_prowords", null)).toEqual({ area: "communication", title: "Prowords" });
   });
 });
 

@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { correctInARow, masteryOf, practiceStreak, levelFor, LEVEL_LABEL, MASTERY_STREAK, type Level, type Mastery } from "@/lib/progress";
-import { mnemonicProgress, radioProgress, setProgress, RADIO_PASS_MARK, type LatestResult } from "@/lib/drillResults";
+import { progressForSet, PASS_MARK, type LatestResult } from "@/lib/drillResults";
+import { SET_TOPICS, testHref } from "@/content/sets";
 import { TOPICS } from "@/content/topics";
 import IdeasCard from "@/components/IdeasCard";
 import { track } from "@/lib/analytics";
@@ -35,12 +36,6 @@ const LEVEL_STYLE: Record<Level, string> = {
   "patrol-ready": "border-ink bg-correct text-white",
 };
 
-const RADIO_NAMES: Record<string, string> = {
-  prowords: "Prowords",
-  phonetic: "Phonetic letters",
-  spell: "Spell it",
-  calls: "Build the call",
-};
 
 // A row of segments, one per item: green done, yellow started, white not yet
 function Segments({ states, label }: { states: ("done" | "started" | "none")[]; label: string }) {
@@ -132,8 +127,7 @@ export default function DashboardPage() {
   const hasAttempts = !!stats && stats.overall.totalAttempts > 0;
   const signals = stats ? progressFor(stats) : [];
   const mastered = signals.filter((s) => s.mastery === "mastered").length;
-  const total = signals.length || 14;
-  const next = nextUp(signals);
+  const next3 = nextUp(signals);
   const streak = practiceStreak(stats?.practiceTimes ?? []);
   const allMastered = signals.length > 0 && mastered === signals.length;
   const tiles = [...signals].sort((a, b) => ORDER[a.mastery] - ORDER[b.mastery] || a.name.localeCompare(b.name));
@@ -141,75 +135,39 @@ export default function DashboardPage() {
   const latest = stats?.drillResults ?? [];
   const savedDaily = latest.find((r) => r.drill === "daily_mix" && dailyKey(new Date(r.at)) === dailyKey());
   const dailyToday = savedDaily ? { score: savedDaily.score, total: savedDaily.total } : dailyHere;
-  const mnems = mnemonicProgress(latest);
-  const mnemMastered = mnems.filter((m) => m.mastered).length;
-  // Carry on with one you've started, otherwise the next new one
-  const nextMnem = mnems.find((m) => m.tried && !m.mastered) ?? mnems.find((m) => !m.mastered);
-  const radio = radioProgress(latest);
-  const radioPassed = radio.filter((r) => r.passed).length;
-  const nextRadio = radio.find((r) => r.tried && !r.passed) ?? radio.find((r) => !r.passed);
-  const surf = setProgress(latest, "surf-awareness");
-  const surfPassed = surf.filter((s) => s.passed).length;
-  const nextSurf = surf.find((s) => s.tried && !s.passed) ?? surf.find((s) => !s.passed);
   const anyActivity = hasAttempts || latest.length > 0;
 
-  // One summary row per area, and a single "next up": the area you're furthest behind in
-  const areas = [
-    {
-      id: "signals",
-      label: "Signals",
-      done: mastered,
-      total,
-      unit: "mastered",
-      tried: hasAttempts,
-      states: tiles.map((t) => (t.mastery === "mastered" ? "done" : t.mastery === "learning" ? "started" : "none")) as ("done" | "started" | "none")[],
-      next: allMastered
-        ? null
-        : hasAttempts
-          ? { text: next.map((n) => n.name).join(", "), href: "/study/identify?start=quick", cta: "Keep going with signals" }
-          : { text: "Name your first signal", href: "/study/identify?start=quick", cta: "Start with signals" },
-    },
-    {
-      id: "acronyms",
-      label: "Acronyms",
-      done: mnemMastered,
-      total: mnems.length,
-      unit: "mastered",
-      tried: mnems.some((m) => m.tried),
-      states: mnems.map((m) => (m.mastered ? "done" : m.tried ? "started" : "none")) as ("done" | "started" | "none")[],
-      next: nextMnem
-        ? {
-            text: `${nextMnem.name}: ${nextMnem.quizDone ? "a Match round with no mistakes" : "a perfect quiz"}`,
-            href: `/test/acronyms/${nextMnem.slug}?mode=${nextMnem.quizDone ? "match" : "quiz"}`,
-            cta: `Test yourself on ${nextMnem.name}`,
-          }
-        : null,
-    },
-    {
-      id: "radio",
-      label: "Radio",
-      done: radioPassed,
-      total: radio.length,
-      unit: "passed",
-      tried: radio.some((r) => r.tried),
-      states: radio.map((r) => (r.passed ? "done" : r.tried ? "started" : "none")) as ("done" | "started" | "none")[],
-      next: nextRadio
-        ? { text: RADIO_NAMES[nextRadio.id], href: `/test/radio/${nextRadio.id}`, cta: `Test yourself: ${RADIO_NAMES[nextRadio.id]}` }
-        : null,
-    },
-    {
-      id: "surf-awareness",
-      label: "Surf awareness",
-      done: surfPassed,
-      total: surf.length,
+  // One summary row per topic, one segment per set, and a single "next up":
+  // the topic you're furthest behind in. Hand signals count as passed once
+  // every signal is mastered.
+  type State = "done" | "started" | "none";
+  const areas = SET_TOPICS.map((t) => {
+    const sets = t.sets.map((set) => {
+      if (set.slug === "hand-signals") {
+        return { set, passed: allMastered, tried: hasAttempts };
+      }
+      const p = progressForSet(set, latest);
+      return { set, passed: p.passed, tried: p.tried };
+    });
+    const nextSet = sets.find((x) => x.tried && !x.passed) ?? sets.find((x) => !x.passed);
+    const next = !nextSet
+      ? null
+      : nextSet.set.slug === "hand-signals"
+        ? hasAttempts
+          ? { text: next3.map((n) => n.name).join(", "), href: "/study/identify?start=quick", cta: "Keep going with signals" }
+          : { text: "Name your first signal", href: "/study/identify?start=quick", cta: "Start with signals" }
+        : { text: nextSet.set.title, href: testHref(nextSet.set), cta: `Test yourself: ${nextSet.set.title}` };
+    return {
+      id: t.id,
+      label: t.title,
+      done: sets.filter((x) => x.passed).length,
+      total: sets.length,
       unit: "sets passed",
-      tried: surf.some((s) => s.tried),
-      states: surf.map((s) => (s.passed ? "done" : s.tried ? "started" : "none")) as ("done" | "started" | "none")[],
-      next: nextSurf
-        ? { text: nextSurf.title, href: `/test/surf-awareness/${nextSurf.slug}`, cta: `Test yourself: ${nextSurf.title}` }
-        : null,
-    },
-  ];
+      tried: sets.some((x) => x.tried),
+      states: sets.map((x) => (x.passed ? "done" : x.tried ? "started" : "none")) as State[],
+      next,
+    };
+  });
   const focus = [...areas].filter((a) => a.next).sort((a, b) => a.done / a.total - b.done / b.total)[0];
 
   // Anonymous "level_reached" when an area moves up a level since the last visit
@@ -405,9 +363,9 @@ export default function DashboardPage() {
             )}
             <p className="text-xs text-stone-600">
               Levels: In training once you&apos;ve started, Shadow patrolling at three quarters, Patrol-ready when
-              everything is done. A signal is mastered when your last {MASTERY_STREAK} tries were right; an acronym after a
-              perfect quiz and a Match round with no mistakes; a radio test or a set is passed at{" "}
-              {Math.round(RADIO_PASS_MARK * 100)}% or more, or a call built with no mistakes. Levels show your progress
+              everything is done. Each topic is made of sets: a set is passed at {Math.round(PASS_MARK * 100)}% or more on its
+              quiz (or a radio call built with no mistakes), and Hand signals once every signal is mastered, which is when
+              your last {MASTERY_STREAK} tries at it were right. Levels show your progress
               in this app only. Whether you&apos;re ready to patrol is up to your club&apos;s training and assessment.{" "}
               <Link href="/history" className="font-semibold text-primary hover:underline">
                 Signal history

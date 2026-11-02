@@ -84,14 +84,6 @@ export function sameLetterOptions(m: Mnemonic, index: number, count = 3): string
   return chosen;
 }
 
-export type MnemonicMode = "learn" | "quiz" | "match";
-
-// Older links used ?mode=order and ?mode=sort; both now open the matching board
-export function parseMnemonicMode(raw: string | undefined): MnemonicMode | undefined {
-  if (raw === "order" || raw === "sort") return "match";
-  return raw === "learn" || raw === "quiz" || raw === "match" ? raw : undefined;
-}
-
 // What goes on the matching board's cards, best first: lines from the scenario,
 // each letter's description, or (when some letters have none, like HELP) the words
 // themselves, which makes it an ordering exercise

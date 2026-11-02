@@ -1,8 +1,10 @@
 import { isValidElement, type ReactNode } from "react";
 import SignalImage from "@/components/SignalImage";
 import { type ChoiceQuestion } from "@/components/drills/ChoiceDrill";
-import { quizQuestions } from "@/components/drills/MnemonicTrainer";
-import { phoneticQuestions, prowordQuestions } from "@/components/drills/RadioPractice";
+import { quizQuestions } from "@/components/drills/acronymDrills";
+import { PHONETIC_ALPHABET, PROWORDS_SET } from "@/content/sets/communication";
+import { findSet, getSetTopic } from "@/content/sets";
+import { setQuestions } from "@/lib/setQuiz";
 import { MNEMONICS } from "@/content/mnemonics";
 import { PSAR_QUESTIONS } from "@/content/psar";
 import { withSeed } from "@/lib/daily";
@@ -46,8 +48,9 @@ export function dailyQuestions(signals: Signal[], day: string): ChoiceQuestion[]
     const sorted = [...signals].sort((a, b) => a.id.localeCompare(b.id));
     const signal = shuffle(sorted)[0];
     const mnemonic = shuffle(MNEMONICS)[0];
-    const mnemonicQ = { ...shuffle(quizQuestions(mnemonic))[0], tag: `Acronyms · ${mnemonic.name}` };
-    const radioQ = { ...shuffle([...prowordQuestions(), ...phoneticQuestions()])[0], tag: "Radio" };
+    const topic = getSetTopic(findSet(mnemonic.slug)?.topic ?? "")?.title ?? "Acronyms";
+    const mnemonicQ = { ...shuffle(quizQuestions(mnemonic))[0], tag: `${topic} · ${mnemonic.name}` };
+    const radioQ = { ...shuffle([...setQuestions(PROWORDS_SET, 99), ...setQuestions(PHONETIC_ALPHABET, 99)])[0], tag: "Radio" };
     return [signalQuestion(signal, sorted), mnemonicQ, radioQ, psarQuestion()];
   });
 }

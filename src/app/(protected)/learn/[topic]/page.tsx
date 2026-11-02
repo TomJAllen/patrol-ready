@@ -2,10 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TrackView from "@/components/TrackView";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { SET_TOPICS, getSetTopic } from "@/content/sets";
+import { SET_TOPICS, getSetTopic, learnHref } from "@/content/sets";
 
 // Learn page for a topic built from sets: one card per set.
-// Signals, Acronyms and Radio still have their own pages, which take precedence.
+// Hand signals has its own page (/learn/signals); the card links there.
 export function generateStaticParams() {
   return SET_TOPICS.map((t) => ({ topic: t.id }));
 }
@@ -30,12 +30,12 @@ export default async function LearnTopicPage({ params }: { params: Promise<{ top
         {topic.sets.map((s) => (
           <li key={s.slug}>
             <Link
-              href={`/learn/${topic.id}/${s.slug}`}
+              href={learnHref(s)}
               className="card flex h-full flex-col gap-2 border-2 border-transparent transition-all hover:border-secondary"
             >
               <span className="text-xl font-bold text-gray-900">{s.title} →</span>
               <span className="flex-1 text-sm text-gray-600">{s.purpose}</span>
-              <span className="text-xs font-bold uppercase tracking-wide text-gray-500">{s.items.length} to learn</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-gray-500">{s.count ?? s.items.length} to learn</span>
             </Link>
           </li>
         ))}

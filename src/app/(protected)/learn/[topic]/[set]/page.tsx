@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import TrackView from "@/components/TrackView";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SetVisual from "@/components/SetVisual";
-import { SET_TOPICS, getSet, getSetTopic } from "@/content/sets";
+import RadioCallsLearn from "@/components/RadioCallsLearn";
+import { SET_TOPICS, getSet, getSetTopic, testHref } from "@/content/sets";
 
 // Learn page for one set, generated from its content
 export function generateStaticParams() {
-  return SET_TOPICS.flatMap((t) => t.sets.map((s) => ({ topic: t.id, set: s.slug })));
+  return SET_TOPICS.flatMap((t) => t.sets.filter((s) => !s.learnHref).map((s) => ({ topic: t.id, set: s.slug })));
 }
 
 export default async function LearnSetPage({ params }: { params: Promise<{ topic: string; set: string }> }) {
@@ -15,6 +16,7 @@ export default async function LearnSetPage({ params }: { params: Promise<{ topic
   const topic = getSetTopic(topicId);
   const set = getSet(topicId, slug);
   if (!topic || !set) notFound();
+  if (set.learnHref) redirect(set.learnHref);
   const hasVisuals = set.items.some((i) => i.visual);
   const List = set.ordered ? "ol" : "ul";
 
@@ -25,7 +27,7 @@ export default async function LearnSetPage({ params }: { params: Promise<{ topic
       <header className="space-y-3">
         <h1 className="text-3xl font-bold text-gray-900">{set.title}</h1>
         <p className="text-gray-600">{set.purpose}</p>
-        <Link href={`/test/${topic.id}/${set.slug}`} className="btn-primary inline-block">
+        <Link href={testHref(set)} className="btn-primary inline-block">
           Test yourself
         </Link>
       </header>
@@ -39,6 +41,7 @@ export default async function LearnSetPage({ params }: { params: Promise<{ topic
         </section>
       )}
 
+      {(set.items.length > 0 || set.intro || set.visual) && (
       <section className="card space-y-4">
         {set.intro && <p className="text-sm text-gray-700">{set.intro}</p>}
         {set.visual && <SetVisual name={set.visual} />}
@@ -59,7 +62,7 @@ export default async function LearnSetPage({ params }: { params: Promise<{ topic
                   {it.term}
                   {it.aka && <span className="block text-sm font-semibold text-gray-500">{it.aka}</span>}
                 </h3>
-                <p className="text-gray-700">{it.meaning}</p>
+                {it.meaning && <p className="text-gray-700">{it.meaning}</p>}
                 {it.details?.map((d) => (
                   <p key={d.label} className="text-sm text-gray-700">
                     <strong className="text-gray-900">{d.label}:</strong> {d.text}
@@ -70,6 +73,9 @@ export default async function LearnSetPage({ params }: { params: Promise<{ topic
           ))}
         </List>
       </section>
+      )}
+
+      {set.learnSection === "radio-calls" && <RadioCallsLearn />}
 
       {set.notes?.map((n) => (
         <section key={n.title} className="card space-y-2">

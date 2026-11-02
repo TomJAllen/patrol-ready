@@ -129,7 +129,7 @@ export default function LearnPage() {
     <div className="space-y-8 pb-12">
       <TrackView event="learn_viewed" props={{ area: "signals" }} />
       <header className="space-y-3">
-        <Breadcrumbs trail={[{ href: "/learn", label: "Learn" }]} />
+        <Breadcrumbs trail={[{ href: "/learn", label: "Learn" }, { href: "/learn/communication", label: "Communication" }]} />
         <h1 className="text-3xl font-bold text-gray-900">Signals</h1>
         <p className="text-gray-600 max-w-2xl">
           All {signals.length || 14} signals, what they mean and how to do them. Read through

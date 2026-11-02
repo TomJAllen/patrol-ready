@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MNEMONICS } from "@/content/mnemonics";
-import { sameLetterOptions, tooSimilar, matchCards, matchSource, parseMnemonicMode } from "@/lib/mnemonicQuiz";
+import { sameLetterOptions, tooSimilar, matchCards, matchSource } from "@/lib/mnemonicQuiz";
 
 describe("mnemonic quiz options", () => {
   it("gives three wrong answers for every letter, all starting with that letter", () => {
@@ -50,12 +50,6 @@ describe("matching board", () => {
     expect(matchSource(MNEMONICS.find((m) => m.slug === "drsabcd")!)).toBe("detail");
   });
 
-  it("keeps old order/sort links working", () => {
-    expect(parseMnemonicMode("order")).toBe("match");
-    expect(parseMnemonicMode("sort")).toBe("match");
-    expect(parseMnemonicMode("quiz")).toBe("quiz");
-    expect(parseMnemonicMode("nope")).toBeUndefined();
-  });
 });
 
 import { PHONETIC, PHONETIC_DECOYS } from "@/content/radio";

@@ -1,9 +1,7 @@
-// Results of finished tests and sessions (acronyms, radio, set quizzes, signals, today's practice): what can be saved, and what counts as
+// Results of finished tests and sessions (set quizzes and extras, signals, today's practice): what can be saved, and what counts as
 // mastered or passed. Shared by the save endpoint, the stats API and the dashboard.
 
-import { MNEMONICS } from "@/content/mnemonics";
-import { RADIO_DRILLS, type RadioDrill } from "@/content/radio";
-import { ALL_SETS, getSetTopic, type SetTopicId } from "@/content/sets";
+import { findSet, getSetTopic, type LearnSet, type LegacyResult, type SetTopicId } from "@/content/sets";
 
 export const SAVED_DRILLS = [
   "mnemonic_quiz",
@@ -64,54 +62,12 @@ export function latestResults<T extends { drill: string; item: string | null }>(
   });
 }
 
-// --- Mnemonics: mastered = a perfect quiz AND a Match round with no mistakes ---
+// --- Sets: passed = 90% or more on the set's quiz, or an older result that
+// still counts (see LegacyResult), so progress from before sets carries over ---
 
-export interface MnemonicProgress {
-  slug: string;
-  name: string;
-  quizDone: boolean;
-  matchDone: boolean;
-  tried: boolean;
-  mastered: boolean;
-}
-
-export function mnemonicProgress(latest: LatestResult[]): MnemonicProgress[] {
-  return MNEMONICS.map((m) => {
-    const quiz = latest.find((r) => r.drill === "mnemonic_quiz" && r.item === m.slug);
-    const match = latest.find((r) => r.drill === "mnemonic_match" && r.item === m.slug);
-    const quizDone = !!quiz && quiz.score === quiz.total;
-    const matchDone = !!match && match.mistakes === 0;
-    return { slug: m.slug, name: m.name, quizDone, matchDone, tried: !!quiz || !!match, mastered: quizDone && matchDone };
-  });
-}
-
-// --- Radio: passed = 90% or more on a quiz, or a call built with no mistakes ---
-
-export const RADIO_PASS_MARK = 0.9;
-const RADIO_DRILL_KEY: Record<RadioDrill, SavedDrill> = {
-  prowords: "radio_prowords",
-  phonetic: "radio_phonetic",
-  spell: "radio_spell",
-  calls: "radio_build_call",
-};
-
-export interface RadioProgress {
-  id: RadioDrill;
-  tried: boolean;
-  passed: boolean;
-}
-
-export function radioProgress(latest: LatestResult[]): RadioProgress[] {
-  return RADIO_DRILLS.map((id) => {
-    const results = latest.filter((r) => r.drill === RADIO_DRILL_KEY[id]);
-    const passed = results.some((r) =>
-      id === "calls" ? r.mistakes === 0 : r.score / r.total >= RADIO_PASS_MARK
-    );
-    return { id, tried: results.length > 0, passed };
-  });
-}
-
-// --- Sets: passed = the same 90% mark as the radio quizzes ---
+export const PASS_MARK = 0.9;
+/** @deprecated use PASS_MARK */
+export const RADIO_PASS_MARK = PASS_MARK;
 
 export interface SetProgress {
   slug: string;
@@ -120,43 +76,56 @@ export interface SetProgress {
   passed: boolean;
 }
 
+const legacyPassed = (rule: LegacyResult, r: LatestResult) =>
+  rule.pass === "perfect" ? r.score === r.total : rule.pass === "no-mistakes" ? r.mistakes === 0 : r.score / r.total >= PASS_MARK;
+
+// Results that count towards a set: its quiz, its extras and any older equivalents
+function resultsFor(set: LearnSet, latest: LatestResult[]) {
+  const quiz = latest.filter((r) => r.drill === "set_quiz" && r.item === set.slug);
+  const legacy = (set.legacy ?? []).flatMap((rule) =>
+    latest.filter((r) => r.drill === rule.drill && (rule.item === undefined || r.item === rule.item)).map((r) => ({ r, rule }))
+  );
+  return { quiz, legacy };
+}
+
+export function progressForSet(set: LearnSet, latest: LatestResult[]): SetProgress {
+  const { quiz, legacy } = resultsFor(set, latest);
+  const passed = quiz.some((r) => r.score / r.total >= PASS_MARK) || legacy.some(({ r, rule }) => legacyPassed(rule, r));
+  return { slug: set.slug, title: set.title, tried: quiz.length > 0 || legacy.length > 0, passed };
+}
+
 export function setProgress(latest: LatestResult[], topic: SetTopicId): SetProgress[] {
-  return (getSetTopic(topic)?.sets ?? []).map((set) => {
-    const result = latest.find((r) => r.drill === "set_quiz" && r.item === set.slug);
-    return { slug: set.slug, title: set.title, tried: !!result, passed: !!result && result.score / result.total >= RADIO_PASS_MARK };
-  });
+  return (getSetTopic(topic)?.sets ?? []).map((set) => progressForSet(set, latest));
 }
 
 // --- Names for the History page ---
 
-
-
 const RADIO_TITLES: Record<string, string> = {
   radio_prowords: "Prowords",
-  radio_phonetic: "Phonetic letters",
-  radio_spell: "Spell it",
-  radio_build_call: "Build the call",
+  radio_phonetic: "Phonetic alphabet",
+  radio_spell: "Phonetic alphabet: Spell it",
+  radio_build_call: "Radio calls: Build the call",
 };
 
-export type ResultArea = "daily" | "signals" | "acronyms" | "radio" | SetTopicId;
+export type ResultArea = "daily" | SetTopicId;
 
-// What a saved result was, in words: "SAMPLE: Match", "Radio: Prowords"…
+// What a saved result was, in words: "SAMPLE: Match", "Prowords"…
 export function describeResult(drill: string, item: string | null): { area: ResultArea; title: string } {
   if (drill === "daily_mix") return { area: "daily", title: "Daily practice" };
-  if (drill === "signals_identify") return { area: "signals", title: "Identify" };
-  if (drill === "signals_perform") return { area: "signals", title: "Perform" };
-  if (drill === "mnemonic_mixed") return { area: "acronyms", title: "Mixed quiz" };
+  if (drill === "signals_identify") return { area: "communication", title: "Hand signals: Identify" };
+  if (drill === "signals_perform") return { area: "communication", title: "Hand signals: Perform" };
+  if (drill === "mnemonic_mixed") return { area: "first-aid", title: "Acronyms: Mixed quiz" };
   if (drill === "mnemonic_quiz" || drill === "mnemonic_match") {
-    const name = MNEMONICS.find((m) => m.slug === item)?.name ?? "Acronym";
-    return { area: "acronyms", title: `${name}: ${drill === "mnemonic_quiz" ? "Quiz" : "Match"}` };
+    const set = findSet(item ?? "");
+    return { area: set?.topic ?? "first-aid", title: `${set?.title ?? "Acronym"}: ${drill === "mnemonic_quiz" ? "Quiz" : "Match"}` };
   }
   if (drill === "set_quiz") {
-    const set = ALL_SETS.find((s) => s.slug === item);
+    const set = findSet(item ?? "");
     if (set) return { area: set.topic, title: set.title };
   }
   if (drill === "topic_mixed") {
     const topic = getSetTopic(item ?? "");
     if (topic) return { area: topic.id, title: "Mixed quiz" };
   }
-  return { area: "radio", title: RADIO_TITLES[drill] ?? "Radio test" };
+  return { area: "communication", title: RADIO_TITLES[drill] ?? "Test" };
 }

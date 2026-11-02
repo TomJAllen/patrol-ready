@@ -51,6 +51,7 @@ export const TYPES_OF_WAVES: LearnSet = {
     },
   ],
   questions: ["picture", "scenario", "meaning"],
+  prompts: { meaning: "Which describes a {term} wave?" },
   scenarios: [
     { id: "gentle-slope", prompt: "The beach shelves very gradually and the waves crumble into white water a long way out.", answer: "spilling", explain: "A gentle slope lets the wave break slowly, crumbling down its face." },
     { id: "tube", prompt: "The wave stands up steeply, the lip throws out and it forms a hollow tube before crashing down.", answer: "plunging", explain: "A curling lip and a tube are the signs of a plunging wave." },
@@ -87,7 +88,8 @@ export const SIGNS_OF_A_RIP: LearnSet = {
     { id: "debris", term: "Debris floating out to sea", meaning: "Seaweed, foam or rubbish carried out through the surf." },
     { id: "foamy", term: "Foamy or sandy water", meaning: "Discoloured, foamy or sandy water out beyond the surf." },
   ],
-  questions: ["odd-one-out", "scenario"],
+  questions: ["odd-one-out", "scenario", "fact"],
+  facts: ["rip-dark", "rip-not-sign"],
   decoys: [
     "More waves breaking than either side",
     "Clear, shallow water over sand",
@@ -132,6 +134,7 @@ export const WAVE_WORDS: LearnSet = {
     { id: "shore-break", term: "Shore break", meaning: "Waves breaking right at the water's edge, often hard and dumping." },
   ],
   questions: ["meaning", "term"],
+  prompts: { meaning: "What does “{term}” mean?", term: "Which word means: “{meaning}”" },
   source: SOURCE,
 };
 
