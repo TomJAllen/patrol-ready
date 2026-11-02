@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { TOPICS } from "@/content/topics";
-import IdeasCard from "@/components/IdeasCard";
 import TopicIcon from "@/components/TopicIcon";
 
-export default function TestHubPage() {
+// All four topics, plus today's practice
+export default function TopicsPage() {
   return (
     <div className="space-y-8 pb-12">
       <header className="space-y-2">
-        <h1 className="font-display text-4xl font-extrabold uppercase text-ink">Test yourself</h1>
+        <h1 className="font-display text-4xl font-extrabold uppercase text-ink">Topics</h1>
         <p className="max-w-2xl text-stone-700">
-          Do today&apos;s practice for a quick mix, or pick a topic. Short tests you can do in a few minutes, with the answer explained when you get one wrong.
+          Quick refreshers for patrol, your Bronze Medallion and SRC, based on the SLSA Public Safety and Aquatic Rescue
+          Training Manual (35th edition). Each topic is made of short sets: read the Learn page, then quiz yourself. Use
+          them alongside your club training, not instead of it.
         </p>
       </header>
       <Link
@@ -21,15 +23,12 @@ export default function TestHubPage() {
           Five questions a day from across every topic, the same for everyone. A quick way to keep everything fresh.
         </span>
       </Link>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {TOPICS.map((t) => {
-          const ready = t.exercises.filter((e) => e.href).length;
-          const soon = t.exercises.length - ready;
-          return (
+      <ul className="grid gap-4 md:grid-cols-2">
+        {TOPICS.map((t) => (
+          <li key={t.id}>
             <Link
-              key={t.id}
-              href={t.testHref}
-              className="flex flex-col rounded-lg border-2 border-ink bg-white p-5 shadow-[4px_4px_0_#1C1917] transition-[transform,box-shadow,background-color] hover:bg-secondary/30 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+              href={t.href}
+              className="flex h-full flex-col rounded-lg border-2 border-ink bg-white p-5 shadow-[4px_4px_0_#1C1917] transition-[transform,box-shadow,background-color] hover:bg-secondary/30 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
             >
               <span className="flex items-center gap-3">
                 <TopicIcon topic={t.id} />
@@ -37,14 +36,12 @@ export default function TestHubPage() {
               </span>
               <span className="mt-2 flex-1 text-stone-700">{t.blurb}</span>
               <span className="mt-4 text-sm font-semibold text-stone-600">
-                {ready} test{ready === 1 ? "" : "s"}
-                {soon > 0 && ` · ${soon} coming soon`}
+                {t.setCount} sets · {t.testCount} tests
               </span>
             </Link>
-          );
-        })}
-      </div>
-      <IdeasCard where="test" />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

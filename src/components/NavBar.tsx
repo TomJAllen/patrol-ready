@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
-// Identify and Perform live under /study but belong to Test
+// Learn pages, quizzes (/test) and Identify/Perform (/study) all belong to Topics
 function isActiveLink(pathname: string, href: string): boolean {
   return (
     pathname === href ||
-    (["/admin", "/learn", "/test", "/profile"].includes(href) && pathname.startsWith(href)) ||
-    (href === "/test" && pathname.startsWith("/study"))
+    (["/admin", "/topics", "/profile"].includes(href) && pathname.startsWith(href)) ||
+    (href === "/topics" && ["/learn", "/test", "/study"].some((p) => pathname.startsWith(p)))
   );
 }
 
@@ -22,16 +22,15 @@ export default function NavBar() {
   const navLinks = session
     ? [
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/learn", label: "Learn" },
-        { href: "/test", label: "Test" },
+        { href: "/topics", label: "Topics" },
         { href: "/profile", label: "Profile" },
         ...(session.user.role === "admin"
           ? [{ href: "/admin", label: "Admin" }]
           : []),
       ]
     : [
-        { href: "/learn", label: "Learn" },
-        { href: "/test", label: "Test" },
+        { href: "/topics", label: "Topics" },
+        { href: "/test/daily", label: "Today's practice" },
       ];
 
   return (

@@ -59,6 +59,17 @@ export const EXTRA_INFO: Record<ExtraKey, { label: string; description: string }
   match: { label: "Match", description: "Drag real details onto the right letter." },
 };
 
+// A topic's page: its sets, each with Learn and its tests
+export function topicHref(topic: string): string {
+  return `/topics/${topic}`;
+}
+
+// A quick quiz of n random questions from across a topic
+export const QUICK_QUIZ_SIZES = [5, 10, 15] as const;
+export function quickQuizHref(topic: string, n: number): string {
+  return `/test/${topic}/mixed?n=${n}`;
+}
+
 export function learnHref(set: LearnSet): string {
   return set.learnHref ?? `/learn/${set.topic}/${set.slug}`;
 }

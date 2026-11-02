@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import SignalTeaser from "@/components/SignalTeaser";
 import { SIGNAL_INDEX, type SignalSummary } from "@/content/signalIndex";
+import { getSetTopic, topicHref } from "@/content/sets";
+import TopicIcon from "@/components/TopicIcon";
 
 function SignalTile({ signal }: { signal: SignalSummary }) {
   return (
@@ -58,13 +60,13 @@ export default function Home() {
               Brush up before your next patrol
             </h1>
             <p className="mt-6 max-w-md text-lg text-white/90">
-              A quick refresher on the 14 beach and water signals, first aid acronyms and radio
-              calls. A few minutes a day, alongside your Bronze, SRC and club training.
+              Quick refreshers on hand signals, the radio, first aid and reading the surf. A few
+              minutes a day, alongside your Bronze, SRC and club training.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
-              <Link href="/test" className="btn-accent">
-                Test yourself
+              <Link href="/test/daily" className="btn-accent">
+                Try today&apos;s practice
               </Link>
               <Link href="/signup" className="font-semibold underline decoration-2 underline-offset-4 hover:decoration-secondary">
                 Create a free account
@@ -125,44 +127,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Three highlights, each led by what it does for you */}
+      {/* The four topics, each led by what it does for you */}
       <section className="border-t-[3px] border-ink bg-white">
-        <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-3 md:gap-8 md:px-6 md:py-20">
-          {[
-            {
-              topic: "Hand signals",
-              title: "Do them on camera",
-              body: "Name all 14 from a picture, then perform each one in front of your camera. It checks your arm positions and movement, and the video never leaves your device.",
-              href: "/test/communication",
-              cta: "Test your signals",
-            },
-            {
-              topic: "First aid & resus",
-              title: "Know what to ask and say",
-              body: "DRSABCD, CPR, SAMPLE, IMIST AMBO and more. Quiz yourself letter by letter, then drag real patient details onto the right letter.",
-              href: "/test/first-aid",
-              cta: "Test your first aid",
-            },
-            {
-              topic: "Radio",
-              title: "Sound sure on the radio",
-              body: "Prowords, the phonetic alphabet and the 4 Ps. Spell call signs and put real calls to SurfCom in the right order.",
-              href: "/test/communication",
-              cta: "Test your radio",
-            },
-          ].map((f) => (
-            <div key={f.topic} className="flex flex-col">
-              <p className="text-sm font-bold uppercase tracking-widest text-primary">{f.topic}</p>
-              <h3 className="mt-2 font-display text-4xl font-extrabold uppercase leading-none text-ink">{f.title}</h3>
-              <p className="mt-3 flex-1 text-stone-700">{f.body}</p>
-              <Link
-                href={f.href}
-                className="mt-4 self-start font-semibold underline decoration-2 underline-offset-4 hover:decoration-primary"
-              >
-                {f.cta} →
-              </Link>
-            </div>
-          ))}
+        <div className="mx-auto max-w-6xl px-5 py-16 md:px-6 md:py-20">
+          <h2 className="font-display text-4xl font-extrabold uppercase leading-none md:text-5xl">Four topics</h2>
+          <p className="mt-2 max-w-2xl text-stone-700">
+            Each one is made of short sets: read the Learn page, then quiz yourself.
+          </p>
+          <div className="mt-10 grid gap-12 md:grid-cols-2 md:gap-10 lg:grid-cols-4 lg:gap-8">
+            {(
+              [
+                {
+                  topic: "communication",
+                  title: "Signal and call with confidence",
+                  body: "All 14 hand signals, with a camera check as you perform them, plus prowords, the phonetic alphabet, call signs and the 4 Ps.",
+                },
+                {
+                  topic: "first-aid",
+                  title: "Know what to ask and do",
+                  body: "DRSABCD, CPR, SAMPLE, IMIST AMBO and more, plus choking, marine stings and head injuries.",
+                },
+                {
+                  topic: "surf-awareness",
+                  title: "Read the water",
+                  body: "How waves break and why it matters, the signs of a rip, and the words for it all.",
+                },
+                {
+                  topic: "patrol",
+                  title: "Run a safe patrol",
+                  body: "What each beach flag means, being fit for patrol, giving feedback and staying warm in the water.",
+                },
+              ] as const
+            ).map((f) => (
+              <div key={f.topic} className="flex flex-col">
+                <TopicIcon topic={f.topic} />
+                <p className="mt-3 text-sm font-bold uppercase tracking-widest text-primary">{getSetTopic(f.topic)!.title}</p>
+                <h3 className="mt-1 font-display text-3xl font-extrabold uppercase leading-none text-ink">{f.title}</h3>
+                <p className="mt-3 flex-1 text-stone-700">{f.body}</p>
+                <Link
+                  href={topicHref(f.topic)}
+                  className="mt-4 self-start font-semibold underline decoration-2 underline-offset-4 hover:decoration-primary"
+                >
+                  Open {getSetTopic(f.topic)!.title.toLowerCase()} →
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -184,8 +194,8 @@ export default function Home() {
             <img src="/icon.svg" alt="" width={28} height={28} className="rounded-md" />
             Patrol Ready
           </div>
-          <Link href="/test" className="btn-secondary">
-            Test yourself
+          <Link href="/topics" className="btn-secondary">
+            See the topics
           </Link>
         </div>
       </section>

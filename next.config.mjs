@@ -53,6 +53,9 @@ const ACRONYM_TOPICS = [
   ["think-smart", "patrol"],
 ];
 
+// Topic ids, for redirecting the old /learn/<topic> and /test/<topic> pages
+const TOPIC_IDS = "communication|first-aid|surf-awareness|patrol";
+
 const nextConfig = {
   poweredByHeader: false,
   images: {
@@ -71,7 +74,7 @@ const nextConfig = {
   // Renamed pages: keep old links and bookmarks working
   async redirects() {
     return [
-      { source: "/practice", destination: "/test", permanent: true },
+      { source: "/practice", destination: "/topics", permanent: true },
       // "Mnemonics" was renamed "Acronyms"
       { source: "/practice/mnemonics", destination: "/test/acronyms", permanent: true },
       { source: "/practice/mnemonics/:path*", destination: "/test/acronyms/:path*", permanent: true },
@@ -86,19 +89,25 @@ const nextConfig = {
         permanent: true,
       },
       { source: "/practice/:path*", destination: "/test/:path*", permanent: true },
+      // Learn and Test merged into Topics (Nov 2026). Set Learn pages (/learn/<topic>/<set>),
+      // quizzes (/test/<topic>/<set>), /learn/signals and /test/daily stay where they are.
+      { source: "/learn", destination: "/topics", permanent: true },
+      { source: "/test", destination: "/topics", permanent: true },
+      { source: `/learn/:topic(${TOPIC_IDS})`, destination: "/topics/:topic", permanent: true },
+      { source: `/test/:topic(${TOPIC_IDS})`, destination: "/topics/:topic", permanent: true },
       // History and Account moved under Profile
       { source: "/history", destination: "/profile/history", permanent: true },
       { source: "/account", destination: "/profile/account", permanent: true },
       // Signals, Acronyms and Radio became sets inside topics (Nov 2026)
-      { source: "/test/signals", destination: "/test/communication", permanent: true },
-      { source: "/learn/radio", destination: "/learn/communication", permanent: true },
-      { source: "/test/radio", destination: "/test/communication", permanent: true },
+      { source: "/test/signals", destination: "/topics/communication", permanent: true },
+      { source: "/learn/radio", destination: "/topics/communication", permanent: true },
+      { source: "/test/radio", destination: "/topics/communication", permanent: true },
       { source: "/test/radio/prowords", destination: "/test/communication/prowords", permanent: true },
       { source: "/test/radio/phonetic", destination: "/test/communication/phonetic-alphabet", permanent: true },
       { source: "/test/radio/spell", destination: "/test/communication/phonetic-alphabet/spell", permanent: true },
       { source: "/test/radio/calls", destination: "/test/communication/radio-calls/build-call", permanent: true },
-      { source: "/learn/acronyms", destination: "/learn/first-aid", permanent: true },
-      { source: "/test/acronyms", destination: "/test/first-aid", permanent: true },
+      { source: "/learn/acronyms", destination: "/topics/first-aid", permanent: true },
+      { source: "/test/acronyms", destination: "/topics/first-aid", permanent: true },
       { source: "/test/acronyms/mixed", destination: "/test/first-aid/mixed", permanent: true },
       ...ACRONYM_TOPICS.flatMap(([slug, topic]) => [
         { source: `/learn/acronyms/${slug}`, destination: `/learn/${topic}/${slug}`, permanent: true },

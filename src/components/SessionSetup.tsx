@@ -28,7 +28,7 @@ export default function SessionSetup({
 
   return (
     <div className="max-w-md mx-auto px-4 space-y-3">
-      <Breadcrumbs trail={[{ href: "/test", label: "Test" }, { href: "/test/communication", label: "Communication" }]} />
+      <Breadcrumbs trail={[{ href: "/topics", label: "Topics" }, { href: "/topics/communication", label: "Communication" }]} />
       <div className="card">
         {/* Header */}
         <div className="text-center mb-8">

@@ -8,7 +8,7 @@ import TermsGate from "@/components/TermsGate";
 import Link from "next/link";
 
 // Pages that allow anonymous access
-const ANONYMOUS_ALLOWED_PATHS = ["/learn", "/test", "/study/identify", "/study/perform"];
+const ANONYMOUS_ALLOWED_PATHS = ["/topics", "/learn", "/test", "/study/identify", "/study/perform"];
 const BANNER_KEY = "ss-guest-banner-dismissed";
 // Everything else under this layout (dashboard, history, account) is personal, so needs sign-in
 
@@ -91,7 +91,7 @@ export default function ProtectedLayout({
               </div>
             </div>
             <Link
-              href="/test"
+              href="/topics"
               className="block w-full py-3 px-6 bg-secondary text-gray-900 rounded-xl font-bold hover:bg-secondary-light transition-all"
             >
               Test yourself without an account
