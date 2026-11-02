@@ -46,6 +46,8 @@ describe("analytics privacy", () => {
     expect(isPrivatePath("/admin/users")).toBe(true);
     expect(isPrivatePath("/account")).toBe(true);
     expect(isPrivatePath("/accounting")).toBe(false);
+    expect(isPrivatePath("/profile/account")).toBe(true);
+    expect(isPrivatePath("/profile")).toBe(false);
     expect(scrubEvent(ev({ $current_url: "https://a.app/admin/users" }))).toBeNull();
     expect(scrubEvent(ev({ $current_url: "https://a.app/account" }))).toBeNull();
     expect(scrubEvent(ev({}), "/reset-password")).toBeNull();

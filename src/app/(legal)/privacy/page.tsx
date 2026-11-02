@@ -136,7 +136,7 @@ export default function PrivacyPage() {
 
       <Section title="Your choices and rights">
         <ul className="list-disc pl-6 space-y-1">
-          <li><strong>Access:</strong> download all your data from your <Link href="/account" className="text-primary underline">Account</Link> page.</li>
+          <li><strong>Access:</strong> download all your data from your <Link href="/profile/account" className="text-primary underline">Account</Link> page.</li>
           <li><strong>Correction:</strong> contact us to correct your details.</li>
           <li><strong>Deletion:</strong> delete your account and all its data from your Account page at any time.</li>
           <li><strong>Analytics:</strong> switch anonymous analytics off (above, or on your Account page).</li>
