@@ -1,8 +1,9 @@
-// Results of finished tests and sessions (acronyms, radio, signals, today's practice): what can be saved, and what counts as
+// Results of finished tests and sessions (acronyms, radio, set quizzes, signals, today's practice): what can be saved, and what counts as
 // mastered or passed. Shared by the save endpoint, the stats API and the dashboard.
 
 import { MNEMONICS } from "@/content/mnemonics";
 import { RADIO_DRILLS, type RadioDrill } from "@/content/radio";
+import { ALL_SETS, getSetTopic, type SetTopicId } from "@/content/sets";
 
 export const SAVED_DRILLS = [
   "mnemonic_quiz",
@@ -12,6 +13,8 @@ export const SAVED_DRILLS = [
   "radio_phonetic",
   "radio_spell",
   "radio_build_call",
+  "set_quiz",
+  "topic_mixed",
   "daily_mix",
   "signals_identify",
   "signals_perform",
@@ -108,7 +111,25 @@ export function radioProgress(latest: LatestResult[]): RadioProgress[] {
   });
 }
 
+// --- Sets: passed = the same 90% mark as the radio quizzes ---
+
+export interface SetProgress {
+  slug: string;
+  title: string;
+  tried: boolean;
+  passed: boolean;
+}
+
+export function setProgress(latest: LatestResult[], topic: SetTopicId): SetProgress[] {
+  return (getSetTopic(topic)?.sets ?? []).map((set) => {
+    const result = latest.find((r) => r.drill === "set_quiz" && r.item === set.slug);
+    return { slug: set.slug, title: set.title, tried: !!result, passed: !!result && result.score / result.total >= RADIO_PASS_MARK };
+  });
+}
+
 // --- Names for the History page ---
+
+
 
 const RADIO_TITLES: Record<string, string> = {
   radio_prowords: "Prowords",
@@ -117,7 +138,7 @@ const RADIO_TITLES: Record<string, string> = {
   radio_build_call: "Build the call",
 };
 
-export type ResultArea = "daily" | "signals" | "acronyms" | "radio";
+export type ResultArea = "daily" | "signals" | "acronyms" | "radio" | SetTopicId;
 
 // What a saved result was, in words: "SAMPLE: Match", "Radio: Prowords"…
 export function describeResult(drill: string, item: string | null): { area: ResultArea; title: string } {
@@ -128,6 +149,14 @@ export function describeResult(drill: string, item: string | null): { area: Resu
   if (drill === "mnemonic_quiz" || drill === "mnemonic_match") {
     const name = MNEMONICS.find((m) => m.slug === item)?.name ?? "Acronym";
     return { area: "acronyms", title: `${name}: ${drill === "mnemonic_quiz" ? "Quiz" : "Match"}` };
+  }
+  if (drill === "set_quiz") {
+    const set = ALL_SETS.find((s) => s.slug === item);
+    if (set) return { area: set.topic, title: set.title };
+  }
+  if (drill === "topic_mixed") {
+    const topic = getSetTopic(item ?? "");
+    if (topic) return { area: topic.id, title: "Mixed quiz" };
   }
   return { area: "radio", title: RADIO_TITLES[drill] ?? "Radio test" };
 }

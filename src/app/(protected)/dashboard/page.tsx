@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { correctInARow, masteryOf, practiceStreak, levelFor, LEVEL_LABEL, MASTERY_STREAK, type Level, type Mastery } from "@/lib/progress";
-import { mnemonicProgress, radioProgress, RADIO_PASS_MARK, type LatestResult } from "@/lib/drillResults";
+import { mnemonicProgress, radioProgress, setProgress, RADIO_PASS_MARK, type LatestResult } from "@/lib/drillResults";
 import { TOPICS } from "@/content/topics";
 import IdeasCard from "@/components/IdeasCard";
 import { track } from "@/lib/analytics";
@@ -148,6 +148,9 @@ export default function DashboardPage() {
   const radio = radioProgress(latest);
   const radioPassed = radio.filter((r) => r.passed).length;
   const nextRadio = radio.find((r) => r.tried && !r.passed) ?? radio.find((r) => !r.passed);
+  const surf = setProgress(latest, "surf-awareness");
+  const surfPassed = surf.filter((s) => s.passed).length;
+  const nextSurf = surf.find((s) => s.tried && !s.passed) ?? surf.find((s) => !s.passed);
   const anyActivity = hasAttempts || latest.length > 0;
 
   // One summary row per area, and a single "next up": the area you're furthest behind in
@@ -192,6 +195,18 @@ export default function DashboardPage() {
       states: radio.map((r) => (r.passed ? "done" : r.tried ? "started" : "none")) as ("done" | "started" | "none")[],
       next: nextRadio
         ? { text: RADIO_NAMES[nextRadio.id], href: `/test/radio/${nextRadio.id}`, cta: `Test yourself: ${RADIO_NAMES[nextRadio.id]}` }
+        : null,
+    },
+    {
+      id: "surf-awareness",
+      label: "Surf awareness",
+      done: surfPassed,
+      total: surf.length,
+      unit: "sets passed",
+      tried: surf.some((s) => s.tried),
+      states: surf.map((s) => (s.passed ? "done" : s.tried ? "started" : "none")) as ("done" | "started" | "none")[],
+      next: nextSurf
+        ? { text: nextSurf.title, href: `/test/surf-awareness/${nextSurf.slug}`, cta: `Test yourself: ${nextSurf.title}` }
         : null,
     },
   ];
@@ -321,7 +336,7 @@ export default function DashboardPage() {
         <h2 id="jump-in" className="font-display text-2xl font-extrabold uppercase text-ink">
           Jump in
         </h2>
-        <ul className="grid gap-3 md:grid-cols-3">
+        <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {TOPICS.map((t) => {
             const a = areas.find((x) => x.id === t.id);
             const level = a && !loading ? levelFor(a.done, a.total, a.tried) : null;
@@ -391,7 +406,7 @@ export default function DashboardPage() {
             <p className="text-xs text-stone-600">
               Levels: In training once you&apos;ve started, Shadow patrolling at three quarters, Patrol-ready when
               everything is done. A signal is mastered when your last {MASTERY_STREAK} tries were right; an acronym after a
-              perfect quiz and a Match round with no mistakes; a radio test is passed at{" "}
+              perfect quiz and a Match round with no mistakes; a radio test or a set is passed at{" "}
               {Math.round(RADIO_PASS_MARK * 100)}% or more, or a call built with no mistakes. Levels show your progress
               in this app only. Whether you&apos;re ready to patrol is up to your club&apos;s training and assessment.{" "}
               <Link href="/history" className="font-semibold text-primary hover:underline">

@@ -15,6 +15,10 @@ const DETAIL: Record<string, { blurb: string; tags: string[] }> = {
     blurb: "Making calls, prowords, the phonetic alphabet and reporting incidents with the 4 Ps.",
     tags: ["Prowords", "Phonetic", "4 Ps"],
   },
+  "surf-awareness": {
+    blurb: "Reading the water: how waves break, how to spot a rip, and the words for it all.",
+    tags: ["Types of waves", "Signs of a rip", "Wave words"],
+  },
 };
 
 export default function LearnHubPage() {
@@ -23,12 +27,12 @@ export default function LearnHubPage() {
       <header className="space-y-2">
         <h1 className="text-3xl font-bold text-gray-900">Learn</h1>
         <p className="text-gray-600 max-w-2xl">
-          Quick refreshers on the signals, acronyms and radio you use on patrol and in your Bronze Medallion and
+          Quick refreshers on the signals, acronyms, radio and surf awareness you use on patrol and in your Bronze Medallion and
           SRC, based on the SLSA Public Safety and Aquatic Rescue Training Manual (35th edition). Use them alongside
           your club training and the manual, not instead of them.
         </p>
       </header>
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         {TOPICS.map((t) => (
           <div key={t.id} className="card flex flex-col gap-3 border-2 border-transparent hover:border-secondary transition-all">
             <Link href={t.learnHref} className="space-y-2 flex-1">
