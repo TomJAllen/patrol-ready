@@ -156,9 +156,6 @@ export const CALL_SCENARIOS: CallScenario[] = [
   },
 ];
 
-// The radio tests, in the order they're listed (each has its own page: /test/radio/<id>)
-export const RADIO_DRILLS = ["prowords", "phonetic", "spell", "calls"] as const;
-export type RadioDrill = (typeof RADIO_DRILLS)[number];
 
 // Wrong answers for "what's the phonetic word for this letter?", all starting
 // with the same letter: words from older and police alphabets (Able, Baker,

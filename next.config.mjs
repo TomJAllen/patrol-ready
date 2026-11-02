@@ -37,6 +37,22 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
+// Where each acronym lives now, for redirects from the old Acronyms pages
+const ACRONYM_TOPICS = [
+  ["drsabcd", "first-aid"],
+  ["sample", "first-aid"],
+  ["imist-ambo", "first-aid"],
+  ["four-s", "first-aid"],
+  ["fast", "first-aid"],
+  ["ricer", "first-aid"],
+  ["harm", "first-aid"],
+  ["four-ps", "communication"],
+  ["help", "patrol"],
+  ["im-safe", "patrol"],
+  ["calm", "patrol"],
+  ["think-smart", "patrol"],
+];
+
 const nextConfig = {
   poweredByHeader: false,
   images: {
@@ -70,6 +86,27 @@ const nextConfig = {
         permanent: true,
       },
       { source: "/practice/:path*", destination: "/test/:path*", permanent: true },
+      // Signals, Acronyms and Radio became sets inside topics (Nov 2026)
+      { source: "/test/signals", destination: "/test/communication", permanent: true },
+      { source: "/learn/radio", destination: "/learn/communication", permanent: true },
+      { source: "/test/radio", destination: "/test/communication", permanent: true },
+      { source: "/test/radio/prowords", destination: "/test/communication/prowords", permanent: true },
+      { source: "/test/radio/phonetic", destination: "/test/communication/phonetic-alphabet", permanent: true },
+      { source: "/test/radio/spell", destination: "/test/communication/phonetic-alphabet/spell", permanent: true },
+      { source: "/test/radio/calls", destination: "/test/communication/radio-calls/build-call", permanent: true },
+      { source: "/learn/acronyms", destination: "/learn/first-aid", permanent: true },
+      { source: "/test/acronyms", destination: "/test/first-aid", permanent: true },
+      { source: "/test/acronyms/mixed", destination: "/test/first-aid/mixed", permanent: true },
+      ...ACRONYM_TOPICS.flatMap(([slug, topic]) => [
+        { source: `/learn/acronyms/${slug}`, destination: `/learn/${topic}/${slug}`, permanent: true },
+        {
+          source: `/test/acronyms/${slug}`,
+          has: [{ type: "query", key: "mode", value: "(match|order|sort)" }],
+          destination: `/test/${topic}/${slug}/match`,
+          permanent: true,
+        },
+        { source: `/test/acronyms/${slug}`, destination: `/test/${topic}/${slug}`, permanent: true },
+      ]),
     ];
   },
   // Anonymous analytics are sent via our own domain (see src/lib/analytics.ts)

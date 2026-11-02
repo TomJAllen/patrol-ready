@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { parseDrillResult, latestResults, mnemonicProgress, radioProgress, type LatestResult } from "@/lib/drillResults";
+import { parseDrillResult, latestResults, progressForSet, type LatestResult } from "@/lib/drillResults";
+import { findSet } from "@/content/sets";
 
 const r = (drill: string, item: string | null, score: number, total: number, mistakes = total - score): LatestResult => ({
   drill,
@@ -44,20 +45,22 @@ describe("saving test results", () => {
   });
 });
 
-describe("mastery for mnemonics and radio", () => {
-  it("needs a perfect quiz and a clean match for a mnemonic", () => {
-    const get = (latest: LatestResult[]) => mnemonicProgress(latest).find((m) => m.slug === "sample")!;
-    expect(get([]).tried).toBe(false);
-    expect(get([r("mnemonic_quiz", "sample", 6, 6)])).toMatchObject({ quizDone: true, mastered: false });
-    expect(get([r("mnemonic_quiz", "sample", 6, 6), r("mnemonic_match", "sample", 6, 6, 1)]).mastered).toBe(false);
-    expect(get([r("mnemonic_quiz", "sample", 6, 6), r("mnemonic_match", "sample", 6, 6, 0)]).mastered).toBe(true);
+describe("older results still count towards sets", () => {
+  const get = (slug: string, latest: LatestResult[]) => progressForSet(findSet(slug)!, latest);
+
+  it("passes an acronym set with a perfect quiz, from before or after sets", () => {
+    expect(get("sample", []).tried).toBe(false);
+    expect(get("sample", [r("mnemonic_quiz", "sample", 5, 6)])).toMatchObject({ tried: true, passed: false });
+    expect(get("sample", [r("mnemonic_quiz", "sample", 6, 6)]).passed).toBe(true);
+    expect(get("sample", [r("set_quiz", "sample", 9, 10)]).passed).toBe(true);
+    expect(get("sample", [r("mnemonic_quiz", "imist-ambo", 9, 9)]).tried).toBe(false);
   });
 
-  it("passes radio tests at 90% or a clean call", () => {
-    const get = (latest: LatestResult[], id: string) => radioProgress(latest).find((x) => x.id === id)!;
-    expect(get([r("radio_spell", null, 5, 6)], "spell").passed).toBe(false);
-    expect(get([r("radio_prowords", null, 11, 12)], "prowords").passed).toBe(true);
-    expect(get([r("radio_build_call", "radio-check", 6, 6, 2)], "calls")).toMatchObject({ tried: true, passed: false });
-    expect(get([r("radio_build_call", "radio-check", 6, 6, 2), r("radio_build_call", "emergency", 7, 7, 0)], "calls").passed).toBe(true);
+  it("passes radio sets at 90%, or a call built with no mistakes", () => {
+    expect(get("phonetic-alphabet", [r("radio_spell", null, 5, 6)]).passed).toBe(false);
+    expect(get("phonetic-alphabet", [r("radio_spell", null, 6, 6)]).passed).toBe(true);
+    expect(get("prowords", [r("radio_prowords", null, 11, 12)]).passed).toBe(true);
+    expect(get("radio-calls", [r("radio_build_call", "radio-check", 6, 6, 2)])).toMatchObject({ tried: true, passed: false });
+    expect(get("radio-calls", [r("radio_build_call", "radio-check", 6, 6, 2), r("radio_build_call", "emergency", 7, 7, 0)]).passed).toBe(true);
   });
 });

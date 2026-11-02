@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { ALL_SETS, SET_TOPICS, getSet } from "@/content/sets";
+import { ALL_SETS, SET_TOPICS, getSet, getSetTopic, setTests, testHref } from "@/content/sets";
+import { MNEMONICS } from "@/content/mnemonics";
+import { PSAR_QUESTIONS } from "@/content/psar";
 import { setQuestions, setLevelQuestions, topicQuestions, SET_QUIZ_LENGTH } from "@/lib/setQuiz";
 import { describeResult, parseDrillResult, setProgress, type LatestResult } from "@/lib/drillResults";
 import { getTopic } from "@/content/topics";
@@ -19,7 +21,7 @@ describe("set content", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
     for (const s of ALL_SETS) {
       for (const field of ["id", "term", "meaning"] as const) {
-        const values = s.items.map((i) => i[field]);
+        const values = s.items.map((i) => i[field]).filter(Boolean);
         expect(new Set(values).size, `${s.slug} ${field}`).toBe(values.length);
       }
     }
@@ -41,7 +43,8 @@ describe("set content", () => {
   it("each question kind has what it needs", () => {
     for (const s of ALL_SETS) {
       if (s.questions.includes("scenario")) expect(s.scenarios?.length, s.slug).toBeGreaterThan(0);
-      if (s.questions.includes("odd-one-out")) expect(s.decoys?.length, s.slug).toBeGreaterThan(0);
+      if (s.questions.includes("letter")) expect(s.mnemonic || s.items.every((i) => i.letter), s.slug).toBeTruthy();
+      if (s.questions.includes("fact")) expect(s.facts?.length, s.slug).toBeGreaterThan(0);
       if (s.questions.includes("picture")) expect(s.items.some((i) => i.visual), s.slug).toBe(true);
       if (s.questions.includes("next")) expect(s.ordered, s.slug).toBe(true);
       // Decoys must not be real items
@@ -50,7 +53,43 @@ describe("set content", () => {
   });
 });
 
+describe("topics", () => {
+  it("has the four topics, each with sets", () => {
+    expect(SET_TOPICS.map((t) => t.id)).toEqual(["communication", "first-aid", "surf-awareness", "patrol"]);
+    for (const t of SET_TOPICS) expect(t.sets.length, t.id).toBeGreaterThan(0);
+  });
+
+  it("puts every acronym in exactly one set", () => {
+    for (const m of MNEMONICS) expect(ALL_SETS.filter((s) => s.mnemonic === m.slug), m.slug).toHaveLength(1);
+  });
+
+  it("only points at PSAR questions that exist", () => {
+    const ids = new Set(PSAR_QUESTIONS.map((q) => q.id));
+    for (const s of ALL_SETS) for (const f of s.facts ?? []) expect(ids.has(f), `${s.slug}: ${f}`).toBe(true);
+  });
+
+  it("gives every set at least one test", () => {
+    for (const s of ALL_SETS) {
+      expect(setTests(s).length, s.slug).toBeGreaterThan(0);
+      expect(testHref(s)).toMatch(/^\/(test|study)\//);
+    }
+  });
+});
+
 describe("set quizzes", () => {
+  it("has enough questions in every set", () => {
+    for (const s of ALL_SETS.filter((x) => x.questions.length)) {
+      expect(setQuestions(s).length, s.slug).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("asks every kind each set lists", () => {
+    for (const s of ALL_SETS) {
+      const kinds = new Set(setQuestions(s, 999).map((q) => q.id.split(":")[1]));
+      for (const k of s.questions) expect(kinds.has(k), `${s.slug}: ${k}`).toBe(true);
+    }
+  });
+
   it("always include the answer once, with no duplicate options", () => {
     for (let n = 0; n < 20; n++) {
       const all = [...ALL_SETS.flatMap((s) => setQuestions(s)), ...SET_TOPICS.flatMap((t) => topicQuestions(t.id))];
@@ -71,7 +110,7 @@ describe("set quizzes", () => {
 
   it("asks what each set is for in a topic quiz", () => {
     const ids = setLevelQuestions("surf-awareness").map((q) => q.id);
-    for (const s of SET_TOPICS[0].sets) expect(ids).toContain(`${s.slug}:purpose`);
+    for (const s of getSetTopic("surf-awareness")!.sets) expect(ids).toContain(`${s.slug}:purpose`);
   });
 
   it("lists one test per set plus a mixed one", () => {
@@ -99,6 +138,6 @@ describe("set results", () => {
   it("shows under its topic in history", () => {
     expect(describeResult("set_quiz", "signs-of-a-rip")).toEqual({ area: "surf-awareness", title: "Signs of a rip" });
     expect(describeResult("topic_mixed", "surf-awareness")).toEqual({ area: "surf-awareness", title: "Mixed quiz" });
-    expect(describeResult("radio_prowords", null)).toEqual({ area: "radio", title: "Prowords" });
+    expect(describeResult("radio_prowords", null)).toEqual({ area: "communication", title: "Prowords" });
   });
 });

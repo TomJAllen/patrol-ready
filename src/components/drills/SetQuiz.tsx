@@ -3,7 +3,7 @@
 import Link from "next/link";
 import ChoiceDrill from "@/components/drills/ChoiceDrill";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { getSet, getSetTopic } from "@/content/sets";
+import { getSet, getSetTopic, learnHref } from "@/content/sets";
 import { setQuestions, topicQuestions } from "@/lib/setQuiz";
 
 // Quiz for one set, or for a whole topic when `set` is "mixed"
@@ -20,8 +20,8 @@ export default function SetQuiz({ topic: topicId, set: slug }: { topic: string; 
         <h1 className="font-display text-4xl font-extrabold uppercase text-ink">{title}</h1>
         <p className="text-gray-600">
           Need a refresher?{" "}
-          <Link href={mixed ? `/learn/${topic.id}` : `/learn/${topic.id}/${slug}`} className="text-primary font-semibold hover:underline">
-            Learn {title.toLowerCase()}
+          <Link href={mixed ? `/learn/${topic.id}` : learnHref(set!)} className="text-primary font-semibold hover:underline">
+            Learn {mixed ? topic.title.toLowerCase() : title}
           </Link>
         </p>
       </header>

@@ -2,13 +2,6 @@ import Link from "next/link";
 import { TOPICS } from "@/content/topics";
 import IdeasCard from "@/components/IdeasCard";
 
-const FOR: Record<string, string> = {
-  signals: "Name them from a picture, then perform them on camera.",
-  acronyms: "Quiz each letter, then drag real patient details onto the right one.",
-  radio: "Prowords, the phonetic alphabet, spelling call signs and building calls.",
-  "surf-awareness": "Name the wave from a drawing, spot the signs of a rip, and know your wave words."
-};
-
 export default function TestHubPage() {
   return (
     <div className="space-y-8 pb-12">
@@ -38,7 +31,7 @@ export default function TestHubPage() {
               className="flex flex-col rounded-lg border-2 border-ink bg-white p-5 shadow-[4px_4px_0_#1C1917] transition-[transform,box-shadow,background-color] hover:bg-secondary/30 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
             >
               <span className="font-display text-3xl font-extrabold uppercase text-ink">{t.title} →</span>
-              <span className="mt-2 flex-1 text-stone-700">{FOR[t.id]}</span>
+              <span className="mt-2 flex-1 text-stone-700">{t.blurb}</span>
               <span className="mt-4 text-sm font-semibold text-stone-600">
                 {ready} test{ready === 1 ? "" : "s"}
                 {soon > 0 && ` · ${soon} coming soon`}

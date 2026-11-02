@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { describeResult, type ResultArea } from "@/lib/drillResults";
 import { localDay } from "@/lib/progress";
+import { SET_TOPICS, type SetTopicId } from "@/content/sets";
 
 interface SavedResult {
   id: string;
@@ -23,21 +24,18 @@ interface SignalStat {
 
 const AREA_LABEL: Record<ResultArea, string> = {
   daily: "Daily practice",
-  signals: "Signals",
-  acronyms: "Acronyms",
-  radio: "Radio",
-  "surf-awareness": "Surf awareness",
+  ...(Object.fromEntries(SET_TOPICS.map((t) => [t.id, t.title])) as Record<SetTopicId, string>),
 };
 
 const AREA_STYLE: Record<ResultArea, string> = {
   daily: "bg-secondary text-ink",
-  signals: "bg-primary text-white",
-  acronyms: "bg-sea text-white",
-  radio: "bg-ink text-white",
-  "surf-awareness": "bg-sky-200 text-ink",
+  communication: "bg-primary text-white",
+  "first-aid": "bg-ink text-white",
+  "surf-awareness": "bg-sea text-white",
+  patrol: "bg-sky-200 text-ink",
 };
 
-const FILTERS: ("all" | ResultArea)[] = ["all", "daily", "signals", "acronyms", "radio", "surf-awareness"];
+const FILTERS: ("all" | ResultArea)[] = ["all", "daily", ...SET_TOPICS.map((t) => t.id)];
 
 // Match rounds and built calls are scored on mistakes; everything else on right answers
 const SCORED_ON_MISTAKES = new Set(["mnemonic_match", "radio_build_call"]);
@@ -166,7 +164,7 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {signals.length > 0 && (filter === "all" || filter === "signals") && (
+      {signals.length > 0 && (filter === "all" || filter === "communication") && (
         <details className="group">
           <summary className="cursor-pointer font-display text-xl font-bold uppercase text-ink">Signals: all-time accuracy</summary>
           <ul className="mt-3 card space-y-3">
