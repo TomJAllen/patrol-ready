@@ -7,7 +7,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import ChoiceDrill, { type ChoiceQuestion } from "@/components/drills/ChoiceDrill";
 import { type LatestResult } from "@/lib/drillResults";
 import { dailyKey } from "@/lib/daily";
-import { dailyQuestions, plainPrompt } from "@/lib/dailyQuestions";
+import { ALL_TOPICS_FROM, DAILY_DESCRIPTION, dailyQuestions, plainPrompt } from "@/lib/dailyQuestions";
 import { dailyAnswersHere, dailyDoneHere, rememberDailyAnswers, type DailyResult } from "@/lib/recordDrill";
 import { saveLocalAttempt } from "@/lib/localStorage";
 import { track } from "@/lib/analytics";
@@ -78,7 +78,9 @@ export default function DailyPracticePage() {
       <header className="space-y-1">
         <h1 className="font-display text-4xl font-extrabold uppercase text-ink">Today&apos;s practice</h1>
         <p className="text-stone-700">
-          Four questions a day, the same for everyone: a signal, an acronym, a radio call and one from the PSAR manual.
+          {day < ALL_TOPICS_FROM
+            ? "Four questions a day, the same for everyone: a signal, an acronym, a radio call and one from the PSAR manual."
+            : DAILY_DESCRIPTION}
         </p>
       </header>
 

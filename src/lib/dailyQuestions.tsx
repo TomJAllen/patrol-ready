@@ -3,7 +3,7 @@ import SignalImage from "@/components/SignalImage";
 import { type ChoiceQuestion } from "@/components/drills/ChoiceDrill";
 import { quizQuestions } from "@/components/drills/acronymDrills";
 import { PHONETIC_ALPHABET, PROWORDS_SET } from "@/content/sets/communication";
-import { findSet, getSetTopic } from "@/content/sets";
+import { SET_TOPICS, findSet, getSetTopic, type LearnSet } from "@/content/sets";
 import { setQuestions } from "@/lib/setQuiz";
 import { MNEMONICS } from "@/content/mnemonics";
 import { PSAR_QUESTIONS } from "@/content/psar";
@@ -15,7 +15,7 @@ function signalQuestion(signal: Signal, all: Signal[]): ChoiceQuestion {
   const others = shuffle(all.filter((s) => s.id !== signal.id)).slice(0, 3);
   return {
     id: `sig-${signal.id}`,
-    tag: "Signals",
+    tag: "Communication · Hand signals",
     prompt: (
       <div className="space-y-3">
         <p>What&apos;s this signal?</p>
@@ -40,10 +40,14 @@ function psarQuestion(): ChoiceQuestion {
   };
 }
 
-// Today's four questions: a signal, an acronym letter, a radio question and a
-// PSAR manual question. Everything is picked and shuffled from a seed made from
-// the (Sydney) date, so everyone gets the same set on the same day.
-export function dailyQuestions(signals: Signal[], day: string): ChoiceQuestion[] {
+// The mix changed on this day; earlier days keep the questions people answered
+export const ALL_TOPICS_FROM = "2026-11-03";
+
+export const DAILY_DESCRIPTION =
+  "Five questions a day, the same for everyone: one from each topic (Communication, First aid & resus, Surf awareness, Patrol & safety) and a wildcard from any of them.";
+
+// Until 2 Nov 2026: a signal, an acronym letter, a radio question and a PSAR question
+function legacyDailyQuestions(signals: Signal[], day: string): ChoiceQuestion[] {
   return withSeed(`daily|${day}`, () => {
     const sorted = [...signals].sort((a, b) => a.id.localeCompare(b.id));
     const signal = shuffle(sorted)[0];
@@ -52,6 +56,37 @@ export function dailyQuestions(signals: Signal[], day: string): ChoiceQuestion[]
     const mnemonicQ = { ...shuffle(quizQuestions(mnemonic))[0], tag: `${topic} · ${mnemonic.name}` };
     const radioQ = { ...shuffle([...setQuestions(PROWORDS_SET, 99), ...setQuestions(PHONETIC_ALPHABET, 99)])[0], tag: "Radio" };
     return [signalQuestion(signal, sorted), mnemonicQ, radioQ, psarQuestion()];
+  });
+}
+
+// One question from a random set (with a quiz) in these sets
+function questionFrom(sets: LearnSet[]): { q: ChoiceQuestion; set: LearnSet } {
+  const set = shuffle(sets)[0];
+  const q = shuffle(setQuestions(set, 99))[0];
+  return { q: { ...q, tag: `${getSetTopic(set.topic)!.title} · ${set.title}` }, set };
+}
+
+// Today's questions. Everything is picked and shuffled from a seed made from the
+// (Sydney) date, so everyone gets the same set on the same day.
+export function dailyQuestions(signals: Signal[], day: string): ChoiceQuestion[] {
+  if (day < ALL_TOPICS_FROM) return legacyDailyQuestions(signals, day);
+  return withSeed(`daily-v2|${day}`, () => {
+    const sorted = [...signals].sort((a, b) => a.id.localeCompare(b.id));
+    const used = new Set<string>();
+    const quizSets = (sets: LearnSet[]) => sets.filter((s) => s.questions.length && !used.has(s.slug));
+    const picks = SET_TOPICS.map((topic) => {
+      // Communication: half the time it's a signal picture
+      if (topic.id === "communication" && sorted.length && Math.random() < 0.5) {
+        used.add("hand-signals");
+        return { ...signalQuestion(shuffle(sorted)[0], sorted), tag: "Communication · Hand signals" };
+      }
+      const { q, set } = questionFrom(quizSets(topic.sets));
+      used.add(set.slug);
+      return q;
+    });
+    // The wildcard: any other set, from any topic
+    const wildcard = questionFrom(quizSets(SET_TOPICS.flatMap((t) => t.sets))).q;
+    return shuffle([...picks, wildcard]);
   });
 }
 

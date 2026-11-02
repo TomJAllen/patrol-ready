@@ -5,6 +5,7 @@ import Link from "next/link";
 import { describeResult, type ResultArea } from "@/lib/drillResults";
 import { localDay } from "@/lib/progress";
 import { SET_TOPICS, type SetTopicId } from "@/content/sets";
+import { TOPIC_STYLE } from "@/components/TopicIcon";
 
 interface SavedResult {
   id: string;
@@ -27,13 +28,7 @@ const AREA_LABEL: Record<ResultArea, string> = {
   ...(Object.fromEntries(SET_TOPICS.map((t) => [t.id, t.title])) as Record<SetTopicId, string>),
 };
 
-const AREA_STYLE: Record<ResultArea, string> = {
-  daily: "bg-secondary text-ink",
-  communication: "bg-primary text-white",
-  "first-aid": "bg-ink text-white",
-  "surf-awareness": "bg-sea text-white",
-  patrol: "bg-sky-200 text-ink",
-};
+const AREA_STYLE: Record<ResultArea, string> = { daily: "bg-secondary text-ink", ...TOPIC_STYLE };
 
 const FILTERS: ("all" | ResultArea)[] = ["all", "daily", ...SET_TOPICS.map((t) => t.id)];
 

@@ -9,6 +9,7 @@ import { progressForSet, PASS_MARK, type LatestResult } from "@/lib/drillResults
 import { SET_TOPICS, testHref } from "@/content/sets";
 import { TOPICS } from "@/content/topics";
 import IdeasCard from "@/components/IdeasCard";
+import TopicIcon from "@/components/TopicIcon";
 import { track } from "@/lib/analytics";
 import { dailyDoneHere, type DailyResult } from "@/lib/recordDrill";
 import { dailyKey } from "@/lib/daily";
@@ -262,7 +263,7 @@ export default function DashboardPage() {
                   Start today&apos;s practice
                 </Link>
                 <p className="text-sm text-stone-600">
-                  Four quick questions: a signal, an acronym, a radio call and one from the PSAR manual.{" "}
+                  Five quick questions, one from each topic plus a wildcard.{" "}
                   <Link
                     href={focus.next.href}
                     onClick={() => track("dashboard_cta", { target: "area", focus: focus.id })}
@@ -290,10 +291,15 @@ export default function DashboardPage() {
       )}
 
       {/* Straight into any area. Shown while stats load, since it doesn't need them */}
-      <section aria-labelledby="jump-in" className="space-y-3">
-        <h2 id="jump-in" className="font-display text-2xl font-extrabold uppercase text-ink">
-          Jump in
-        </h2>
+      <section aria-labelledby="topics" className="space-y-3">
+        <div>
+          <h2 id="topics" className="font-display text-2xl font-extrabold uppercase text-ink">
+            Your topics
+          </h2>
+          <p className="text-sm text-stone-700">
+            Everything is grouped into four topics. Learn reads you through it; Test quizzes you on it.
+          </p>
+        </div>
         <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {TOPICS.map((t) => {
             const a = areas.find((x) => x.id === t.id);
@@ -301,7 +307,8 @@ export default function DashboardPage() {
             return (
               <li key={t.id} className="card space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
+                  <TopicIcon topic={t.id} />
+                  <div className="flex-1">
                     <p className="font-display text-2xl font-extrabold uppercase leading-none text-ink">{t.title}</p>
                     <p className="mt-1 text-sm text-stone-700">{t.blurb}</p>
                   </div>

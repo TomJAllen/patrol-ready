@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TOPICS } from "@/content/topics";
 import { SET_TOPICS } from "@/content/sets";
+import TopicIcon from "@/components/TopicIcon";
 
 // Up to five set names per topic, shown as tags
 const TAGS: Record<string, string[]> = Object.fromEntries(SET_TOPICS.map((t) => [t.id, t.sets.slice(0, 5).map((s) => s.title)]));
@@ -20,6 +21,7 @@ export default function LearnHubPage() {
         {TOPICS.map((t) => (
           <div key={t.id} className="card flex flex-col gap-3 border-2 border-transparent hover:border-secondary transition-all">
             <Link href={t.learnHref} className="space-y-2 flex-1">
+              <TopicIcon topic={t.id} />
               <h2 className="text-2xl font-bold text-gray-900">{t.title} →</h2>
               <p className="text-gray-600">{t.blurb}</p>
               <div className="flex flex-wrap gap-1 pt-1">

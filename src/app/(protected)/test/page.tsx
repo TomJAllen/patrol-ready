@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TOPICS } from "@/content/topics";
 import IdeasCard from "@/components/IdeasCard";
+import TopicIcon from "@/components/TopicIcon";
 
 export default function TestHubPage() {
   return (
@@ -8,7 +9,7 @@ export default function TestHubPage() {
       <header className="space-y-2">
         <h1 className="font-display text-4xl font-extrabold uppercase text-ink">Test yourself</h1>
         <p className="max-w-2xl text-stone-700">
-          Pick an area. Short tests you can do in a few minutes, with the answer explained when you get one wrong.
+          Do today&apos;s practice for a quick mix, or pick a topic. Short tests you can do in a few minutes, with the answer explained when you get one wrong.
         </p>
       </header>
       <Link
@@ -17,7 +18,7 @@ export default function TestHubPage() {
       >
         <span className="font-display text-3xl font-extrabold uppercase text-ink">Today&apos;s practice →</span>
         <span className="mt-1 block text-ink">
-          Four questions a day, the same for everyone: a signal, an acronym, a radio call and one from the PSAR manual.
+          Five questions a day from across every topic, the same for everyone. A quick way to keep everything fresh.
         </span>
       </Link>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -30,7 +31,10 @@ export default function TestHubPage() {
               href={t.testHref}
               className="flex flex-col rounded-lg border-2 border-ink bg-white p-5 shadow-[4px_4px_0_#1C1917] transition-[transform,box-shadow,background-color] hover:bg-secondary/30 active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
             >
-              <span className="font-display text-3xl font-extrabold uppercase text-ink">{t.title} →</span>
+              <span className="flex items-center gap-3">
+                <TopicIcon topic={t.id} />
+                <span className="font-display text-3xl font-extrabold uppercase leading-none text-ink">{t.title} →</span>
+              </span>
               <span className="mt-2 flex-1 text-stone-700">{t.blurb}</span>
               <span className="mt-4 text-sm font-semibold text-stone-600">
                 {ready} test{ready === 1 ? "" : "s"}

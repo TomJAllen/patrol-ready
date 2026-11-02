@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSetTopic, setTests, learnHref, type SetTopicId } from "@/content/sets";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import TopicIcon from "@/components/TopicIcon";
 
 // The Test page for a topic: one card per set with its tests, then the mixed quiz
 export default function TopicTests({ topic }: { topic: SetTopicId }) {
@@ -9,7 +10,10 @@ export default function TopicTests({ topic }: { topic: SetTopicId }) {
     <div className="space-y-8 pb-12">
       <Breadcrumbs trail={[{ href: "/test", label: "Test" }]} />
       <header className="space-y-2">
-        <h1 className="font-display text-4xl font-extrabold uppercase text-ink">Test your {t.title.toLowerCase()}</h1>
+        <div className="flex items-center gap-3">
+          <TopicIcon topic={t.id} size="lg" />
+          <h1 className="font-display text-4xl font-extrabold uppercase leading-none text-ink">Test your {t.title.toLowerCase()}</h1>
+        </div>
         <p className="text-stone-700">
           {t.blurb} Need a refresher?{" "}
           <Link href={`/learn/${t.id}`} className="font-semibold text-primary hover:underline">
