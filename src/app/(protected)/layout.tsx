@@ -67,7 +67,7 @@ export default function ProtectedLayout({
             Sign In Required
           </h2>
           <p className="text-gray-600 mb-6">
-            You need to sign in to see your dashboard, history and account. Everything else works without an account.
+            You need to sign in to see your dashboard and profile. Everything else works without an account.
           </p>
           <div className="space-y-3">
             <Link
