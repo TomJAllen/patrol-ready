@@ -24,6 +24,17 @@ function Letters({ m, highlight }: { m: Mnemonic; highlight?: number }) {
   );
 }
 
+const ORDINALS = ["first", "second", "third", "fourth"];
+
+// "the S", or "the first D" / "the second D" when a letter appears more than once
+export function whichLetter(m: Mnemonic, index: number): string {
+  const letter = m.items[index].letter;
+  const same = m.items.map((it, i) => ({ it, i })).filter(({ it }) => it.letter === letter);
+  if (same.length < 2) return `the ${letter}`;
+  const nth = same.findIndex(({ i }) => i === index);
+  return `the ${ORDINALS[nth] ?? `${nth + 1}th`} ${letter}`;
+}
+
 export function quizQuestions(m: Mnemonic): ChoiceQuestion[] {
   return shuffle(m.items.map((item, i) => ({ item, i }))).map(({ item, i }) => {
     // Every option starts with the same letter, so the letter alone gives nothing away
@@ -39,9 +50,7 @@ export function quizQuestions(m: Mnemonic): ChoiceQuestion[] {
       ) : (
         <div className="space-y-3">
           <Letters m={m} highlight={i} />
-          <p>
-            In {m.name}, what does letter {i + 1} ({item.letter}) stand for?
-          </p>
+          <p>In {m.name}, what does {whichLetter(m, i)} stand for?</p>
         </div>
       ),
       options: shuffle([item.term, ...distractors]),

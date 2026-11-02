@@ -32,7 +32,7 @@ interface ChoiceDrillProps {
 }
 
 // Multiple-choice drill: pick an answer, see why, then move on when ready.
-export default function ChoiceDrill({
+function ChoiceDrillInner({
   makeQuestions,
   doneLabel = "Round complete",
   trackAs,
@@ -155,4 +155,19 @@ export default function ChoiceDrill({
       )}
     </div>
   );
+}
+
+// Questions are shuffled at random, so they're only built in the browser: built on
+// the server too, the two would differ and React would throw the page away.
+export default function ChoiceDrill(props: ChoiceDrillProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) {
+    return (
+      <div className="card flex justify-center py-10" aria-busy="true">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+      </div>
+    );
+  }
+  return <ChoiceDrillInner {...props} />;
 }

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { ALL_SETS, SET_TOPICS, getSet, getSetTopic, setTests, testHref } from "@/content/sets";
 import { MNEMONICS } from "@/content/mnemonics";
 import { PSAR_QUESTIONS } from "@/content/psar";
-import { setQuestions, setLevelQuestions, topicQuestions, SET_QUIZ_LENGTH } from "@/lib/setQuiz";
+import { setQuestions, setLevelQuestions, topicQuestions, SET_QUIZ_LENGTH, TOPIC_QUIZ_LENGTH } from "@/lib/setQuiz";
 import { describeResult, parseDrillResult, setProgress, type LatestResult } from "@/lib/drillResults";
 import { getTopic } from "@/content/topics";
 
@@ -108,9 +108,20 @@ describe("set quizzes", () => {
     expect(kinds).toEqual(new Set(["picture", "scenario", "meaning"]));
   });
 
-  it("asks what each set is for in a topic quiz", () => {
-    const ids = setLevelQuestions("surf-awareness").map((q) => q.id);
-    for (const s of getSetTopic("surf-awareness")!.sets) expect(ids).toContain(`${s.slug}:purpose`);
+  it("only asks about the sets themselves between acronyms", () => {
+    const ids = setLevelQuestions("first-aid").map((q) => q.id);
+    for (const s of getSetTopic("first-aid")!.sets.filter((x) => x.mnemonic)) expect(ids).toContain(`${s.slug}:purpose`);
+    expect(ids.some((id) => id.startsWith("cpr:"))).toBe(false);
+    expect(setLevelQuestions("surf-awareness")).toEqual([]);
+    expect(setLevelQuestions("communication")).toEqual([]);
+  });
+
+  it("fills a topic quiz to its full length", () => {
+    for (const t of SET_TOPICS) expect(topicQuestions(t.id), t.id).toHaveLength(TOPIC_QUIZ_LENGTH);
+  });
+
+  it("never asks where a term belongs", () => {
+    for (const t of SET_TOPICS) for (const q of topicQuestions(t.id)) expect(q.id).not.toContain(":belongs:");
   });
 
   it("lists one test per set plus a mixed one", () => {

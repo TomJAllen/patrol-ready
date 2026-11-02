@@ -156,31 +156,31 @@ export function setQuestions(set: LearnSet, length = SET_QUIZ_LENGTH): ChoiceQue
   return shuffle(picked);
 }
 
-// Questions about the sets themselves, for a topic quiz
+// Questions about the sets themselves, for a topic quiz. Only between acronyms,
+// where it's a real test (SAMPLE or IMIST AMBO?); "which set is 'Out' in?" is
+// too obvious to be worth asking.
 export function setLevelQuestions(topicId: string): ChoiceQuestion[] {
-  const sets = getSetTopic(topicId)?.sets ?? [];
-  if (sets.length < 3) return [];
-  const wrongTitles = (s: LearnSet) => shuffle(sets.filter((x) => x.slug !== s.slug).map((x) => x.title)).slice(0, 3);
-  const purpose = sets.map((s) =>
-    choice(`${s.slug}:purpose`, <>Which one covers: <em>&ldquo;{s.purpose}&rdquo;</em></>, s.title, wrongTitles(s))
-  );
-  // "Where does Allergies belong?" only when no other set in the topic has that term
-  const belongs = sets.flatMap((s) =>
-    shuffle(s.items.filter((it) => !sets.some((o) => o.slug !== s.slug && o.items.some((x) => tooSimilar(x.term, it.term)))))
-      .slice(0, 2)
-      .map((it) =>
-        choice(`${s.slug}:belongs:${it.id}`, <>Where does <strong>&ldquo;{it.term}&rdquo;</strong> belong?</>, s.title, wrongTitles(s), it.meaning || undefined)
-      )
-  );
-  return [...purpose, ...belongs];
+  const acronyms = (getSetTopic(topicId)?.sets ?? []).filter((s) => s.mnemonic);
+  if (acronyms.length < 3) return [];
+  const wrong = (s: LearnSet) => shuffle(acronyms.filter((x) => x.slug !== s.slug).map((x) => x.title)).slice(0, 3);
+  return acronyms.flatMap((s) => [
+    choice(`${s.slug}:purpose`, <>Which acronym is for: <em>{s.purpose}</em>?</>, s.title, wrong(s)),
+    ...(s.whenToUse ?? []).slice(0, 1).map((w) =>
+      choice(`${s.slug}:when`, <>{w} Which acronym do you use?</>, s.title, wrong(s))
+    ),
+  ]);
 }
 
-// A whole topic: one or two from each set, plus questions about the sets
+// A whole topic: a spread from every set, plus a few questions about the acronyms
 export function topicQuestions(topicId: string, length = TOPIC_QUIZ_LENGTH): ChoiceQuestion[] {
   const sets = (getSetTopic(topicId)?.sets ?? []).filter((s) => s.questions.length);
-  const perSet = Math.max(1, Math.round((length * 0.7) / Math.max(sets.length, 1)));
+  // At most one question per set about the set itself, so the two don't repeat each other
+  const about = shuffle(setLevelQuestions(topicId)).filter(
+    (q, i, all) => all.findIndex((x) => x.id.split(":")[0] === q.id.split(":")[0]) === i
+  );
+  const aboutCount = Math.min(about.length, Math.ceil(length * 0.25));
+  const need = length - aboutCount;
+  const perSet = Math.max(1, Math.ceil(need / Math.max(sets.length, 1)));
   const fromSets = shuffle(sets.flatMap((s) => setQuestions(s, perSet).map((q) => ({ ...q, tag: s.title }))));
-  const about = shuffle(setLevelQuestions(topicId));
-  const aboutCount = Math.min(about.length, Math.max(length - fromSets.length, Math.ceil(length * 0.3)));
-  return shuffle([...fromSets.slice(0, length - aboutCount), ...about.slice(0, aboutCount)]);
+  return shuffle([...fromSets.slice(0, need), ...about.slice(0, aboutCount)]);
 }

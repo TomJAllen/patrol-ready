@@ -93,6 +93,12 @@ export const RADIO_CALLS: LearnSet = {
 };
 
 // Plausible P words, so the odd one out isn't obvious from the letter
-export const FOUR_PS = fromMnemonic("four-ps", "communication", { decoys: ["Pulse", "Priority", "Pain", "Patrol"] });
+// Mostly "which P is this?" from real radio report lines, plus plausible P words
+// so the odd one out isn't obvious from the letter
+export const FOUR_PS = fromMnemonic("four-ps", "communication", {
+  questions: ["scenario", "odd-one-out"],
+  prompts: { scenario: "Which of the 4 Ps is this? “{prompt}”" },
+  decoys: ["Pulse", "Priority", "Pain", "Patrol"],
+});
 
 export const COMMUNICATION_SETS: LearnSet[] = [HAND_SIGNALS, PROWORDS_SET, PHONETIC_ALPHABET, CALL_SIGNS_SET, RADIO_CALLS, FOUR_PS];
