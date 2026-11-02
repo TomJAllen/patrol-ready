@@ -40,11 +40,12 @@ function psarQuestion(): ChoiceQuestion {
   };
 }
 
-// The mix changed on this day; earlier days keep the questions people answered
-export const ALL_TOPICS_FROM = "2026-11-03";
+// The mix changed on this day. Earlier days, and anyone who'd already done that
+// day's four questions, keep the questions they answered.
+export const ALL_TOPICS_FROM = "2026-11-02";
 
 export const DAILY_DESCRIPTION =
-  "Five questions a day, the same for everyone: one from each topic (Communication, First aid & resus, Surf awareness, Patrol & safety) and a wildcard from any of them.";
+  "Five quick questions a day from across every topic, the same for everyone. A new mix every day.";
 
 // Until 2 Nov 2026: a signal, an acronym letter, a radio question and a PSAR question
 function legacyDailyQuestions(signals: Signal[], day: string): ChoiceQuestion[] {
@@ -68,8 +69,8 @@ function questionFrom(sets: LearnSet[]): { q: ChoiceQuestion; set: LearnSet } {
 
 // Today's questions. Everything is picked and shuffled from a seed made from the
 // (Sydney) date, so everyone gets the same set on the same day.
-export function dailyQuestions(signals: Signal[], day: string): ChoiceQuestion[] {
-  if (day < ALL_TOPICS_FROM) return legacyDailyQuestions(signals, day);
+export function dailyQuestions(signals: Signal[], day: string, opts: { legacy?: boolean } = {}): ChoiceQuestion[] {
+  if (day < ALL_TOPICS_FROM || opts.legacy) return legacyDailyQuestions(signals, day);
   return withSeed(`daily-v2|${day}`, () => {
     const sorted = [...signals].sort((a, b) => a.id.localeCompare(b.id));
     const used = new Set<string>();

@@ -27,7 +27,7 @@ describe("today's practice", () => {
   });
 
   it("from 3 Nov 2026: one question per topic plus a wildcard, the same for everyone", () => {
-    for (const day of ["2026-11-03", "2026-11-04", "2026-12-25", "2027-01-01"]) {
+    for (const day of ["2026-11-02", "2026-11-03", "2026-11-04", "2026-12-25", "2027-01-01"]) {
       const qs = dailyQuestions(signals, day);
       expect(qs).toHaveLength(5);
       expect(summary(day)).toEqual(summary(day, [...signals].reverse()));
@@ -44,7 +44,8 @@ describe("today's practice", () => {
   });
 
   it("keeps the questions people already answered before the change", () => {
-    expect(summary("2026-11-02")).toHaveLength(4);
+    expect(summary("2026-11-01")).toHaveLength(4);
+    expect(dailyQuestions(signals, "2026-11-02", { legacy: true })).toHaveLength(4);
   });
 
   it("changes from day to day", () => {

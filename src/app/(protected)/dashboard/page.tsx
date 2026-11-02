@@ -251,10 +251,8 @@ export default function DashboardPage() {
             {focus?.next ? (
               <div className="space-y-3">
                 <p className="text-sm font-bold uppercase tracking-widest text-primary">Today</p>
-                <p className="font-display text-3xl font-extrabold uppercase leading-tight text-ink">
-                  {anyActivity ? focus.label : "Start with the signals"}
-                </p>
-                <p className="text-ink">{focus.next.text}</p>
+                <p className="font-display text-3xl font-extrabold uppercase leading-tight text-ink">Today&apos;s practice</p>
+                <p className="text-ink">Five quick questions from across every topic. The same for everyone, new each day.</p>
                 <Link
                   href="/test/daily"
                   onClick={() => track("dashboard_cta", { target: "daily", focus: focus.id })}
@@ -263,13 +261,13 @@ export default function DashboardPage() {
                   Start today&apos;s practice
                 </Link>
                 <p className="text-sm text-stone-600">
-                  Five quick questions, one from each topic plus a wildcard.{" "}
+                  {anyActivity ? "Or pick up where you left off: " : "Or start with "}
                   <Link
                     href={focus.next.href}
                     onClick={() => track("dashboard_cta", { target: "area", focus: focus.id })}
                     className="font-semibold text-primary hover:underline"
                   >
-                    Or go straight to {focus.label.toLowerCase()}
+                    {anyActivity ? `${focus.label}, ${focus.next.text}` : "the hand signals"} →
                   </Link>
                 </p>
               </div>
@@ -305,19 +303,19 @@ export default function DashboardPage() {
             const a = areas.find((x) => x.id === t.id);
             const level = a && !loading ? levelFor(a.done, a.total, a.tried) : null;
             return (
-              <li key={t.id} className="card space-y-3 p-4">
+              <li key={t.id} className="card flex flex-col gap-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <TopicIcon topic={t.id} />
-                  <div className="flex-1">
-                    <p className="font-display text-2xl font-extrabold uppercase leading-none text-ink">{t.title}</p>
-                    <p className="mt-1 text-sm text-stone-700">{t.blurb}</p>
-                  </div>
                   {level && level !== "not-started" && (
-                    <span className={`shrink-0 rounded border-2 px-2 py-0.5 text-xs font-bold leading-tight ${LEVEL_STYLE[level]}`}>
+                    <span className={`rounded border-2 px-2 py-0.5 text-xs font-bold leading-tight ${LEVEL_STYLE[level]}`}>
                       {level === "patrol-ready" && "✓ "}
                       {LEVEL_LABEL[level]}
                     </span>
                   )}
+                </div>
+                <div className="flex-1">
+                  <p className="font-display text-2xl font-extrabold uppercase leading-none text-ink">{t.title}</p>
+                  <p className="mt-1 text-sm text-stone-700">{t.blurb}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Link
