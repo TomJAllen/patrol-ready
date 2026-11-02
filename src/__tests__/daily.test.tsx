@@ -26,6 +26,27 @@ describe("today's practice", () => {
     expect(summary("2026-10-20")).toHaveLength(4);
   });
 
+  it("from 3 Nov 2026: one question per topic plus a wildcard, the same for everyone", () => {
+    for (const day of ["2026-11-03", "2026-11-04", "2026-12-25", "2027-01-01"]) {
+      const qs = dailyQuestions(signals, day);
+      expect(qs).toHaveLength(5);
+      expect(summary(day)).toEqual(summary(day, [...signals].reverse()));
+      const topics = qs.map((q) => q.tag!.split(" · ")[0]);
+      for (const t of ["Communication", "First aid & resus", "Surf awareness", "Patrol & safety"]) expect(topics, day).toContain(t);
+      // No set twice
+      const sets = qs.map((q) => q.tag);
+      expect(new Set(sets).size, day).toBe(sets.length);
+      for (const q of qs) {
+        expect(q.options).toContain(q.answer);
+        expect(plainPrompt(q).length).toBeGreaterThan(5);
+      }
+    }
+  });
+
+  it("keeps the questions people already answered before the change", () => {
+    expect(summary("2026-11-02")).toHaveLength(4);
+  });
+
   it("changes from day to day", () => {
     const days = ["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"].map((d) => summary(d).join());
     expect(new Set(days).size).toBeGreaterThan(1);

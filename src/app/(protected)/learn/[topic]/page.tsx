@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import TrackView from "@/components/TrackView";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { SET_TOPICS, getSetTopic, learnHref } from "@/content/sets";
+import TopicIcon from "@/components/TopicIcon";
 
 // Learn page for a topic built from sets: one card per set.
 // Hand signals has its own page (/learn/signals); the card links there.
@@ -20,7 +21,10 @@ export default async function LearnTopicPage({ params }: { params: Promise<{ top
       <TrackView event="learn_viewed" props={{ area: topic.id }} />
       <Breadcrumbs trail={[{ href: "/learn", label: "Learn" }]} />
       <header className="space-y-3">
-        <h1 className="text-3xl font-bold text-gray-900">{topic.title}</h1>
+        <div className="flex items-center gap-3">
+          <TopicIcon topic={topic.id} size="lg" />
+          <h1 className="text-3xl font-bold text-gray-900">{topic.title}</h1>
+        </div>
         <p className="text-gray-600">{topic.blurb}</p>
         <Link href={`/test/${topic.id}/mixed`} className="btn-primary inline-block">
           Test yourself on all of {topic.title.toLowerCase()}
