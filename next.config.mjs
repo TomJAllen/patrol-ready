@@ -86,6 +86,9 @@ const nextConfig = {
         permanent: true,
       },
       { source: "/practice/:path*", destination: "/test/:path*", permanent: true },
+      // History and Account moved under Profile
+      { source: "/history", destination: "/profile/history", permanent: true },
+      { source: "/account", destination: "/profile/account", permanent: true },
       // Signals, Acronyms and Radio became sets inside topics (Nov 2026)
       { source: "/test/signals", destination: "/test/communication", permanent: true },
       { source: "/learn/radio", destination: "/learn/communication", permanent: true },

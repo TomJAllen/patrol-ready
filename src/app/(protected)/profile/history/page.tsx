@@ -96,7 +96,7 @@ export default function HistoryPage() {
   return (
     <div className="space-y-6 pb-12">
       <header className="space-y-1">
-        <h1 className="font-display text-4xl font-extrabold uppercase text-ink">History</h1>
+        <h2 className="font-display text-2xl font-extrabold uppercase text-ink">History</h2>
         <p className="text-stone-700">Every test and session you&apos;ve finished, newest first.</p>
       </header>
 

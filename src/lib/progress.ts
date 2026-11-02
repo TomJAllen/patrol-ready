@@ -99,3 +99,19 @@ export function levelFor(done: number, total: number, tried: boolean): Level {
   if (total > 0 && done / total >= 0.75) return "ready";
   return tried || done > 0 ? "learning" : "not-started";
 }
+
+// Longest run of consecutive practice days in these times
+export function longestStreak(times: (string | Date)[]): number {
+  const days = Array.from(new Set(times.map((t) => localDay(new Date(t))))).sort();
+  let best = 0;
+  let run = 0;
+  let prev: Date | null = null;
+  for (const d of days) {
+    const [y, m, day] = d.split("-").map(Number);
+    const date = new Date(y, m - 1, day);
+    run = prev && Math.round((date.getTime() - prev.getTime()) / 86400000) === 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = date;
+  }
+  return best;
+}

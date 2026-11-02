@@ -46,8 +46,8 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-12">
-      <h1 className="text-3xl font-bold text-gray-900">Account</h1>
+    <div className="space-y-6 pb-12">
+      <h2 className="font-display text-2xl font-extrabold uppercase text-ink">Account</h2>
 
       <section className="card space-y-2">
         <h2 className="text-lg font-bold text-gray-900">Your details</h2>

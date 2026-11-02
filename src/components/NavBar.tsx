@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 function isActiveLink(pathname: string, href: string): boolean {
   return (
     pathname === href ||
-    (["/admin", "/learn", "/test"].includes(href) && pathname.startsWith(href)) ||
+    (["/admin", "/learn", "/test", "/profile"].includes(href) && pathname.startsWith(href)) ||
     (href === "/test" && pathname.startsWith("/study"))
   );
 }
@@ -24,8 +24,7 @@ export default function NavBar() {
         { href: "/dashboard", label: "Dashboard" },
         { href: "/learn", label: "Learn" },
         { href: "/test", label: "Test" },
-        { href: "/history", label: "History" },
-        { href: "/account", label: "Account" },
+        { href: "/profile", label: "Profile" },
         ...(session.user.role === "admin"
           ? [{ href: "/admin", label: "Admin" }]
           : []),
