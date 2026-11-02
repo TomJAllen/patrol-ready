@@ -1,25 +1,9 @@
 import Link from "next/link";
 import { TOPICS } from "@/content/topics";
-import { MNEMONICS } from "@/content/mnemonics";
+import { SET_TOPICS } from "@/content/sets";
 
-const DETAIL: Record<string, { blurb: string; tags: string[] }> = {
-  signals: {
-    blurb: "All 14 beach and water signals: what they mean, how to do them, and official demo videos.",
-    tags: ["Beach to Water", "Water to Beach"],
-  },
-  acronyms: {
-    blurb: "Assessment, handover, first aid and patrol memory aids, each explained letter by letter.",
-    tags: MNEMONICS.slice(0, 5).map((m) => m.name),
-  },
-  radio: {
-    blurb: "Making calls, prowords, the phonetic alphabet and reporting incidents with the 4 Ps.",
-    tags: ["Prowords", "Phonetic", "4 Ps"],
-  },
-  "surf-awareness": {
-    blurb: "Reading the water: how waves break, how to spot a rip, and the words for it all.",
-    tags: ["Types of waves", "Signs of a rip", "Wave words"],
-  },
-};
+// Up to five set names per topic, shown as tags
+const TAGS: Record<string, string[]> = Object.fromEntries(SET_TOPICS.map((t) => [t.id, t.sets.slice(0, 5).map((s) => s.title)]));
 
 export default function LearnHubPage() {
   return (
@@ -27,7 +11,7 @@ export default function LearnHubPage() {
       <header className="space-y-2">
         <h1 className="text-3xl font-bold text-gray-900">Learn</h1>
         <p className="text-gray-600 max-w-2xl">
-          Quick refreshers on the signals, acronyms, radio and surf awareness you use on patrol and in your Bronze Medallion and
+          Quick refreshers on the communication, first aid, surf awareness and patrol skills you use on patrol and in your Bronze Medallion and
           SRC, based on the SLSA Public Safety and Aquatic Rescue Training Manual (35th edition). Use them alongside
           your club training and the manual, not instead of them.
         </p>
@@ -37,9 +21,9 @@ export default function LearnHubPage() {
           <div key={t.id} className="card flex flex-col gap-3 border-2 border-transparent hover:border-secondary transition-all">
             <Link href={t.learnHref} className="space-y-2 flex-1">
               <h2 className="text-2xl font-bold text-gray-900">{t.title} →</h2>
-              <p className="text-gray-600">{DETAIL[t.id].blurb}</p>
+              <p className="text-gray-600">{t.blurb}</p>
               <div className="flex flex-wrap gap-1 pt-1">
-                {DETAIL[t.id].tags.map((tag) => (
+                {TAGS[t.id].map((tag) => (
                   <span key={tag} className="px-2 py-0.5 rounded-full bg-gray-100 text-xs font-bold text-gray-600">{tag}</span>
                 ))}
               </div>
