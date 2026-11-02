@@ -8,7 +8,7 @@ import { topicAreas, type StatsResponse } from "@/lib/topicProgress";
 import { TOPICS } from "@/content/topics";
 import IdeasCard from "@/components/IdeasCard";
 import TopicIcon from "@/components/TopicIcon";
-import { LevelBadge, Segments } from "@/components/ProgressBits";
+import { LevelBadge } from "@/components/ProgressBits";
 import { track } from "@/lib/analytics";
 import { dailyDoneHere, type DailyResult } from "@/lib/recordDrill";
 import { dailyKey } from "@/lib/daily";
@@ -165,7 +165,7 @@ export default function DashboardPage() {
             Your topics
           </h2>
           <p className="text-sm text-stone-700">
-            Everything is grouped into four topics. Learn reads you through it; Test quizzes you on it.
+            Everything is grouped into four topics, each made of short sets to learn and then quiz yourself on.
           </p>
         </div>
         <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
@@ -173,7 +173,12 @@ export default function DashboardPage() {
             const a = areas.find((x) => x.id === t.id)!;
             const level = loading ? null : a.level;
             return (
-              <li key={t.id} className="card flex flex-col gap-3 p-4">
+              <li key={t.id}>
+                <Link
+                  href={t.href}
+                  onClick={() => track("dashboard_cta", { target: "topic", focus: t.id })}
+                  className="flex h-full flex-col gap-3 rounded-lg border-2 border-ink bg-white p-4 shadow-[3px_3px_0_#1C1917] transition-[transform,box-shadow,background-color] hover:bg-secondary/30 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+                >
                 <div className="flex items-start justify-between gap-2">
                   <TopicIcon topic={t.id} />
                   {level && level !== "not-started" && <LevelBadge level={level} />}
@@ -182,30 +187,11 @@ export default function DashboardPage() {
                   <p className="font-display text-2xl font-extrabold uppercase leading-none text-ink">{t.title}</p>
                   <p className="mt-1 text-sm text-stone-700">{t.blurb}</p>
                 </div>
-                {!loading && anyActivity && (
-                  <div className="space-y-1">
-                    <Segments states={a.states} label={`${a.label}: ${a.done} of ${a.total} sets passed`} />
-                    <p className="text-xs font-semibold text-stone-600">
-                      {a.done} of {a.total} sets passed
-                    </p>
-                  </div>
-                )}
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href={t.learnHref}
-                    onClick={() => track("dashboard_cta", { target: "learn", focus: t.id })}
-                    className="btn-outline w-full py-2.5"
-                  >
-                    Learn
-                  </Link>
-                  <Link
-                    href={t.testHref}
-                    onClick={() => track("dashboard_cta", { target: "test", focus: t.id })}
-                    className="btn-primary w-full py-2.5"
-                  >
-                    Test
-                  </Link>
-                </div>
+                <p className="text-sm font-semibold text-stone-600">
+                  {!loading && anyActivity ? `${a.done} of ${a.total} sets passed` : `${a.total} sets`}
+                  <span className="float-right font-bold text-primary">Open →</span>
+                </p>
+                </Link>
               </li>
             );
           })}

@@ -4,7 +4,7 @@ import TrackView from "@/components/TrackView";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SetVisual from "@/components/SetVisual";
 import RadioCallsLearn from "@/components/RadioCallsLearn";
-import { SET_TOPICS, getSet, getSetTopic, testHref } from "@/content/sets";
+import { SET_TOPICS, getSet, getSetTopic, testHref, topicHref } from "@/content/sets";
 
 // Learn page for one set, generated from its content
 export function generateStaticParams() {
@@ -23,7 +23,7 @@ export default async function LearnSetPage({ params }: { params: Promise<{ topic
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-12">
       <TrackView event="learn_viewed" props={{ area: topic.id, set: set.slug }} />
-      <Breadcrumbs trail={[{ href: "/learn", label: "Learn" }, { href: `/learn/${topic.id}`, label: topic.title }]} />
+      <Breadcrumbs trail={[{ href: "/topics", label: "Topics" }, { href: topicHref(topic.id), label: topic.title }]} />
       <header className="space-y-3">
         <h1 className="text-3xl font-bold text-gray-900">{set.title}</h1>
         <p className="text-gray-600">{set.purpose}</p>

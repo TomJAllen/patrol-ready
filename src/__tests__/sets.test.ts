@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { ALL_SETS, SET_TOPICS, getSet, getSetTopic, setTests, testHref } from "@/content/sets";
+import { ALL_SETS, SET_TOPICS, QUICK_QUIZ_SIZES, getSet, getSetTopic, setTests, testHref } from "@/content/sets";
 import { MNEMONICS } from "@/content/mnemonics";
 import { PSAR_QUESTIONS } from "@/content/psar";
 import { setQuestions, setLevelQuestions, topicQuestions, SET_QUIZ_LENGTH, TOPIC_QUIZ_LENGTH } from "@/lib/setQuiz";
-import { describeResult, parseDrillResult, setProgress, type LatestResult } from "@/lib/drillResults";
+import { describeResult, parseDrillResult, setProgress, setRecord, type LatestResult } from "@/lib/drillResults";
 import { getTopic } from "@/content/topics";
 
 const r = (drill: string, item: string, score: number, total: number): LatestResult => ({
@@ -120,14 +120,24 @@ describe("set quizzes", () => {
     for (const t of SET_TOPICS) expect(topicQuestions(t.id), t.id).toHaveLength(TOPIC_QUIZ_LENGTH);
   });
 
+  it("gives quick quizzes of 5, 10 or 15 questions, with no repeats", () => {
+    for (const t of SET_TOPICS) {
+      for (const n of QUICK_QUIZ_SIZES) {
+        const qs = topicQuestions(t.id, n);
+        expect(qs, `${t.id} ${n}`).toHaveLength(n);
+        expect(new Set(qs.map((q) => q.id)).size, `${t.id} ${n}`).toBe(n);
+      }
+    }
+  });
+
   it("never asks where a term belongs", () => {
     for (const t of SET_TOPICS) for (const q of topicQuestions(t.id)) expect(q.id).not.toContain(":belongs:");
   });
 
-  it("lists one test per set plus a mixed one", () => {
-    const hrefs = getTopic("surf-awareness").exercises.map((e) => e.href);
+  it("lists every set's tests and links the topic page", () => {
+    const hrefs = getSetTopic("surf-awareness")!.sets.flatMap((s) => setTests(s).map((t) => t.href));
     expect(hrefs).toContain("/test/surf-awareness/types-of-waves");
-    expect(hrefs).toContain("/test/surf-awareness/mixed");
+    expect(getTopic("surf-awareness")).toMatchObject({ href: "/topics/surf-awareness", setCount: 3 });
   });
 });
 
@@ -150,5 +160,31 @@ describe("set results", () => {
     expect(describeResult("set_quiz", "signs-of-a-rip")).toEqual({ area: "surf-awareness", title: "Signs of a rip" });
     expect(describeResult("topic_mixed", "surf-awareness")).toEqual({ area: "surf-awareness", title: "Mixed quiz" });
     expect(describeResult("radio_prowords", null)).toEqual({ area: "communication", title: "Prowords" });
+  });
+});
+
+describe("set records", () => {
+  const at = (d: string, drill: string, item: string | null, score: number, total: number, mistakes = total - score) => ({ drill, item, score, total, mistakes, at: `${d}T00:00:00Z` });
+
+  it("finds the best score and the first pass, counting older results", () => {
+    const sample = getSet("first-aid", "sample")!;
+    const rec = setRecord(sample, [
+      at("2026-11-03", "set_quiz", "sample", 10, 10),
+      at("2026-10-01", "mnemonic_quiz", "sample", 4, 6),
+      at("2026-10-05", "mnemonic_quiz", "sample", 6, 6),
+      at("2026-10-02", "set_quiz", "imist-ambo", 10, 10),
+    ]);
+    expect(rec).toEqual({ best: 1, firstPassed: "2026-10-05T00:00:00Z", lastTried: "2026-11-03T00:00:00Z" });
+  });
+
+  it("is empty for a set you haven't tried", () => {
+    expect(setRecord(getSet("first-aid", "cpr")!, [])).toEqual({ best: null, firstPassed: null, lastTried: null });
+  });
+
+  it("counts a radio call built with no mistakes", () => {
+    const calls = getSet("communication", "radio-calls")!;
+    const rec = setRecord(calls, [at("2026-10-01", "radio_build_call", "emergency", 4, 4, 2), at("2026-10-02", "radio_build_call", "radio-check", 5, 5, 0)]);
+    expect(rec.firstPassed).toBe("2026-10-02T00:00:00Z");
+    expect(rec.best).toBe(1);
   });
 });

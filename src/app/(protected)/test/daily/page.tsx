@@ -71,8 +71,8 @@ export default function DailyPracticePage() {
     }).catch(() => {});
   };
 
-  const backHref = status === "authenticated" ? "/dashboard" : "/test";
-  const backLabel = status === "authenticated" ? "Dashboard" : "Test";
+  const backHref = status === "authenticated" ? "/dashboard" : "/topics";
+  const backLabel = status === "authenticated" ? "Dashboard" : "Topics";
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-12">
@@ -101,8 +101,8 @@ export default function DailyPracticePage() {
             </p>
             <p className="text-stone-700">A new set is ready at midnight. Keep practising with the tests in the meantime.</p>
             <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:justify-center">
-              <Link href="/test" className="btn-primary">
-                More tests
+              <Link href="/topics" className="btn-primary">
+                More topics
               </Link>
               {status === "authenticated" && (
                 <Link href="/dashboard" className="btn-outline">

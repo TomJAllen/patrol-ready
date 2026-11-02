@@ -17,12 +17,6 @@ interface SavedResult {
   at: string;
 }
 
-interface SignalStat {
-  id: string;
-  name: string;
-  stats: { totalAttempts: number; correctAttempts: number; accuracy: number };
-}
-
 const AREA_LABEL: Record<ResultArea, string> = {
   daily: "Daily practice",
   ...(Object.fromEntries(SET_TOPICS.map((t) => [t.id, t.title])) as Record<SetTopicId, string>),
@@ -66,7 +60,6 @@ function Score({ r }: { r: SavedResult }) {
 
 export default function HistoryPage() {
   const [results, setResults] = useState<SavedResult[] | null>(null);
-  const [signals, setSignals] = useState<SignalStat[]>([]);
   const [filter, setFilter] = useState<"all" | ResultArea>("all");
   const [error, setError] = useState(false);
 
@@ -78,10 +71,6 @@ export default function HistoryPage() {
         setError(true);
         setResults([]);
       });
-    fetch("/api/stats")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((s) => setSignals((s?.signalStats ?? []).filter((x: SignalStat) => x.stats.totalAttempts > 0)))
-      .catch(() => {});
   }, []);
 
   const shown = (results ?? []).filter((r) => filter === "all" || describeResult(r.drill, r.item).area === filter);
@@ -159,31 +148,6 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {signals.length > 0 && (filter === "all" || filter === "communication") && (
-        <details className="group">
-          <summary className="cursor-pointer font-display text-xl font-bold uppercase text-ink">Signals: all-time accuracy</summary>
-          <ul className="mt-3 card space-y-3">
-            {[...signals]
-              .sort((a, b) => a.stats.accuracy - b.stats.accuracy)
-              .map((s) => (
-                <li key={s.id} className="space-y-1">
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span className="font-semibold text-ink">{s.name}</span>
-                    <span className="text-stone-700">
-                      {s.stats.correctAttempts}/{s.stats.totalAttempts} right
-                    </span>
-                  </div>
-                  <div className="h-2.5 overflow-hidden rounded-sm border border-ink bg-white">
-                    <div
-                      className={s.stats.accuracy >= 80 ? "h-full bg-correct" : s.stats.accuracy >= 50 ? "h-full bg-secondary" : "h-full bg-primary"}
-                      style={{ width: `${s.stats.accuracy}%` }}
-                    />
-                  </div>
-                </li>
-              ))}
-          </ul>
-        </details>
-      )}
     </div>
   );
 }

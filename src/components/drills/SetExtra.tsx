@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { AcronymMatch } from "@/components/drills/acronymDrills";
 import BuildCallDrill from "@/components/drills/BuildCallDrill";
 import SpellDrill from "@/components/drills/SpellDrill";
-import { EXTRA_INFO, getSet, getSetTopic, learnHref, type ExtraKey } from "@/content/sets";
+import { EXTRA_INFO, getSet, getSetTopic, learnHref, topicHref, type ExtraKey } from "@/content/sets";
 
 // A set's extra test: Spell it, Build the call or Match
 export default function SetExtra({ topic: topicId, set: slug, extra }: { topic: string; set: string; extra: ExtraKey }) {
@@ -13,7 +13,7 @@ export default function SetExtra({ topic: topicId, set: slug, extra }: { topic: 
   const set = getSet(topicId, slug)!;
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-12">
-      <Breadcrumbs trail={[{ href: "/test", label: "Test" }, { href: `/test/${topic.id}`, label: topic.title }]} />
+      <Breadcrumbs trail={[{ href: "/topics", label: "Topics" }, { href: topicHref(topic.id), label: topic.title }]} />
       <header className="space-y-2">
         <p className="text-sm font-bold uppercase tracking-widest text-primary">{set.title}</p>
         <h1 className="font-display text-4xl font-extrabold uppercase text-ink">{EXTRA_INFO[extra].label}</h1>

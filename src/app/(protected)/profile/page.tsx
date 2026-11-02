@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import TopicIcon from "@/components/TopicIcon";
-import { LevelBadge, Segments } from "@/components/ProgressBits";
 import { badges, isTopicIcon, type Badge, type SavedResult } from "@/lib/badges";
-import { longestStreak, practiceStreak, MASTERY_STREAK } from "@/lib/progress";
+import { longestStreak, practiceStreak } from "@/lib/progress";
 import { signalProgress, topicAreas, type StatsResponse } from "@/lib/topicProgress";
-import { PASS_MARK } from "@/lib/drillResults";
 
 function Stat({ value, label }: { value: string | number; label: string }) {
   return (
@@ -132,32 +130,6 @@ export default function ProfilePage() {
         </ul>
       </section>
 
-      <section aria-labelledby="levels" className="space-y-3">
-        <h2 id="levels" className="font-display text-2xl font-extrabold uppercase text-ink">
-          Your levels
-        </h2>
-        <ul className="space-y-3">
-          {areas.map((a) => (
-            <li key={a.id} className="card space-y-2 p-4">
-              <div className="flex items-center gap-3">
-                <TopicIcon topic={a.id} size="sm" />
-                <span className="flex-1 font-bold text-ink">{a.label}</span>
-                <LevelBadge level={a.level} />
-              </div>
-              <Segments states={a.states} label={`${a.label}: ${a.done} of ${a.total} sets passed`} />
-              <p className="text-xs font-semibold text-stone-600">
-                {a.done} of {a.total} sets passed
-              </p>
-            </li>
-          ))}
-        </ul>
-        <p className="text-xs text-stone-600">
-          A set is passed at {Math.round(PASS_MARK * 100)}% or more on its quiz (or a radio call built with no mistakes), and
-          Hand signals once every signal is mastered: your last {MASTERY_STREAK} tries at it right. Streaks count any
-          practice: a test, a signal session or today&apos;s practice, and your best streak looks back 60 days. Levels show your progress in this app only. Whether
-          you&apos;re ready to patrol is up to your club&apos;s training and assessment.
-        </p>
-      </section>
     </div>
   );
 }

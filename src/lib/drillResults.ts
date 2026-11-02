@@ -98,6 +98,33 @@ export function setProgress(latest: LatestResult[], topic: SetTopicId): SetProgr
   return (getSetTopic(topic)?.sets ?? []).map((set) => progressForSet(set, latest));
 }
 
+// --- A set's record, for the status table: best score and when it was first passed ---
+
+export interface SetRecord {
+  best: number | null; // best score as a fraction, 0–1
+  firstPassed: string | null; // ISO date of the first passing result
+  lastTried: string | null;
+}
+
+// `results` is every saved result (any order). Counts the set's quiz and any
+// older equivalents (see LegacyResult).
+export function setRecord(set: LearnSet, results: LatestResult[]): SetRecord {
+  const relevant = results
+    .map((r) => {
+      if (r.drill === "set_quiz" && r.item === set.slug) return { r, passed: r.score / r.total >= PASS_MARK };
+      const rule = (set.legacy ?? []).find((l) => l.drill === r.drill && (l.item === undefined || l.item === r.item));
+      return rule ? { r, passed: legacyPassed(rule, r) } : null;
+    })
+    .filter((x): x is { r: LatestResult; passed: boolean } => !!x)
+    .sort((a, b) => a.r.at.localeCompare(b.r.at));
+  if (!relevant.length) return { best: null, firstPassed: null, lastTried: null };
+  return {
+    best: Math.max(...relevant.map(({ r }) => (r.drill === "radio_build_call" ? (r.mistakes === 0 ? 1 : 0) : r.score / r.total))),
+    firstPassed: relevant.find((x) => x.passed)?.r.at ?? null,
+    lastTried: relevant[relevant.length - 1].r.at,
+  };
+}
+
 // --- Names for the History page ---
 
 const RADIO_TITLES: Record<string, string> = {
