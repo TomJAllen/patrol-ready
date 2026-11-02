@@ -50,7 +50,9 @@ export default function DailyPracticePage() {
       .catch(() => setDone(null));
   }, [status, day]);
 
-  const questions = useMemo(() => (signals?.length ? dailyQuestions(signals, day) : []), [signals, day]);
+  // Done today's four before the mix changed? Then keep showing those four
+  const legacy = !!done && done.total === 4 && day === ALL_TOPICS_FROM;
+  const questions = useMemo(() => (signals?.length ? dailyQuestions(signals, day, { legacy }) : []), [signals, day, legacy]);
 
   // The signal answer also counts towards that signal's mastery
   const onAnswer = (q: ChoiceQuestion, correct: boolean) => {
@@ -78,7 +80,7 @@ export default function DailyPracticePage() {
       <header className="space-y-1">
         <h1 className="font-display text-4xl font-extrabold uppercase text-ink">Today&apos;s practice</h1>
         <p className="text-stone-700">
-          {day < ALL_TOPICS_FROM
+          {day < ALL_TOPICS_FROM || legacy
             ? "Four questions a day, the same for everyone: a signal, an acronym, a radio call and one from the PSAR manual."
             : DAILY_DESCRIPTION}
         </p>
