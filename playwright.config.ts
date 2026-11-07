@@ -8,8 +8,13 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3001",
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
     trace: "on-first-retry",
+    // The app's Content Security Policy blocks the eval that Next's dev server
+    // needs, which stops pages hydrating under `next dev`
+    bypassCSP: true,
+    // Optional: use an already-installed Chromium instead of Playwright's own
+    launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : undefined,
     screenshot: "only-on-failure",
   },
   projects: [
@@ -18,13 +23,18 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: "Mobile Safari",
-      use: { ...devices["iPhone 13"] },
+      name: "mobile",
+      use: { ...devices["Pixel 7"] },
     },
   ],
-  webServer: process.env.CI ? {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: false,
-  } : undefined,
+  // Starts the app unless BASE_URL points at one that's already running. API
+  // calls that need the database are mocked in the tests (see e2e/fixtures.ts).
+  webServer: process.env.BASE_URL
+    ? undefined
+    : {
+        command: "npm run dev",
+        url: "http://localhost:3000",
+        reuseExistingServer: !process.env.CI,
+        timeout: 180_000,
+      },
 });
